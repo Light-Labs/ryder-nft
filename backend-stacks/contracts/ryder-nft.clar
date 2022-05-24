@@ -1,25 +1,31 @@
 ;; ryder-nft
 (impl-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
-(use-trait commission-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.commission-nft-ustx.commission-trait)
+(use-trait commission-trait 'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait.commission)
 
 (define-non-fungible-token ryder uint)
 
 ;; Constants
 (define-constant DEPLOYER tx-sender)
-(define-data-var MINT-LIMIT u5000)
+(define-constant MINT-LIMIT u5000)
 
 (define-constant err-not-authorized (err u403))
 (define-constant err-not-found (err u404))
 
 (define-constant err-invalid-id (err u500))
 (define-constant err-listing (err u501))
-(define-constant err-wrong-commission (err 502))
+(define-constant err-wrong-commission (err u502))
+(define-constant err-metadata-frozen (err u503))
+(define-constant err-already-done (err u504))
+(define-constant err-fatale (err u999))
 
 ;; Variables
 (define-map token-count principal uint)
-(define-map metadata uint {tier: uint, seed: uint})
+(define-map mint-info uint {tier: uint, mint-height: uint})
+(define-map levels uint uint)
 
 (define-data-var token-uri (string-ascii 80) "ipfs://ipfs/Qm../{id}.json")
+(define-data-var metadata-frozen bool false)
+
 
 (define-data-var admin principal tx-sender)
 (define-data-var minter principal tx-sender)
@@ -28,15 +34,18 @@
 ;;
 ;; mint and burn
 ;;
-(define-public (mint (id uint))
-  (begin
+(define-public (mint (id uint) (tier uint))
+  (let ((sender-balance (get-balance tx-sender)))
     (asserts! (is-allowed-minter contract-caller) err-not-authorized)
-    (asserts! (and (> id 0) (<= id MINT-LIMIT) err-invalid-id))
-    (nft-mint? ryder next-id tx-sender))))
+    (asserts! (and (>= id u1) (<= id MINT-LIMIT)) err-invalid-id)
+    (map-set token-count tx-sender (+ u1 sender-balance))
+    (map-set mint-info id {tier: tier, mint-height: block-height})
+    (nft-mint? ryder id tx-sender)))
 
 (define-public (burn (id uint))
-  (begin 
+  (let ((sender-balance (get-balance tx-sender)))
     (asserts! (or (is-allowed-burner contract-caller) (is-owner id tx-sender)) err-not-authorized)
+    (map-set token-count tx-sender (+ u1 sender-balance))
     (nft-burn? ryder id tx-sender)))
 
 ;;
@@ -48,33 +57,33 @@
     (asserts! (is-none (map-get? market id)) err-listing)
     (trnsfr id sender recipient)))
 
-(define-public (transfer-memo (id uint) (sender principal) (recipient principal)
-(memo (buff 33)))
+(define-public (transfer-memo (id uint) (sender principal) (recipient principal) (memo (buff 33)))
   (begin 
     (try! (transfer id sender recipient))
     (print memo)
     (ok true)))
 
-(define-private (transfer-iter-fn (result (response bool uint)) (details {id:uint, sender: principal, recipient:
-principal}))
+(define-private (transfer-iter-fn 
+    (details {id: uint, sender: principal, recipient: principal}) 
+    (result (response bool uint)))
   (if (is-ok result)
     (transfer (get id details) (get sender details) (get recipient details))
     (ok false)))
 
-(define-public (transfer-many (list 200 {id:uint, sender: principal, recipient:
-principal}))
-  (fold transfer-iter-fn list (ok true)))
+(define-public (transfer-many (recipients (list 200 {id: uint, sender: principal, recipient: principal})))
+  (fold transfer-iter-fn recipients (ok true)))
 
-(define-private (transfer-memo-iter-fn (result (response bool uint)) (details {id:uint, sender: principal, recipient:
-principal, memo: (buff 33)}))
+(define-private (transfer-memo-iter-fn 
+    (details {id: uint, sender: principal, recipient: principal, memo: (buff 33)})
+    (result (response bool uint)))
   (if (is-ok result)
     (transfer-memo (get id details) (get sender details) (get recipient details)
     (get memo details))
     (ok false)))
 
-(define-public (transfer-memo-many (list 200 {id:uint, sender: principal, recipient:
-principal, memo: (buff 33)}))
-  (fold transfer-memo-iter-fn list (ok true)))
+(define-public (transfer-memo-many (recipients (list 200 {id: uint, sender: principal,
+                                      recipient: principal, memo: (buff 33)})))
+  (fold transfer-memo-iter-fn recipients (ok true)))
 
 (define-private (trnsfr (id uint) (sender principal) (recipient principal))
   (let
@@ -119,10 +128,28 @@ principal, memo: (buff 33)}))
     (var-set metadata-frozen true)
     (ok true)))
 
+(define-public (level-up-nfts)
+  (begin
+    (asserts! (is-admin tx-sender) err-not-authorized)
+    (asserts! (map-insert levels u1 block-height) err-already-done)
+    (ok true)))
+
 (define-public (set-admin (new-admin principal))
   (begin
     (asserts! (is-admin tx-sender) err-not-authorized)
     (var-set admin new-admin)
+    (ok true)))
+
+(define-public (set-minter (new-minter principal))
+  (begin
+    (asserts! (is-admin tx-sender) err-not-authorized)
+    (var-set minter new-minter)
+    (ok true)))
+
+(define-public (set-burner (new-burner principal))
+  (begin
+    (asserts! (is-admin tx-sender) err-not-authorized)
+    (var-set burner new-burner)
     (ok true)))
 
 ;; read-only functions
@@ -133,12 +160,23 @@ principal, memo: (buff 33)}))
   (ok u5000))
 
 (define-read-only (get-token-uri (token-id uint))
-  (ok (var-get token-uri)))
+  (ok (some (var-get token-uri))))
 
 (define-read-only (get-balance (account principal))
   (default-to u0
     (map-get? token-count account)))
 
+(define-read-only (get-mint-info (token-id uint))
+	(map-get? mint-info token-id))
+
+(define-read-only (get-nft-seed (token-id uint))
+	(let
+		(
+			(level-up-height (unwrap! (map-get? levels u1) (ok 0x0000000000000000000000000000000000000000000000000000000000000000)))
+			(nft-seed (sha256 (concat (sha256 token-id) (unwrap! (get-block-info? vrf-seed level-up-height) err-fatale))))
+		)
+		(ok nft-seed)))
+    
 ;;
 ;; Non-custodial marketplace
 ;;
