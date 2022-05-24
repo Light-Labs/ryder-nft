@@ -112,7 +112,7 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: "Ensure that burner can't burn when called not called by owner",
+  name: "Ensure that burner can't burn",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     const wallet_1 = accounts.get("wallet_1")!;

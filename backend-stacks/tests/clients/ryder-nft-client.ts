@@ -67,6 +67,11 @@ export function setMinter(newMinter: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-minter", [newMinter], userAddress);
 }
 
+
+export function setBurner(newBurner: string, userAddress: string) {
+  return Tx.contractCall("ryder-nft", "set-burner", [newBurner], userAddress);
+}
+
 export function levelUpNfts(userAddress: string) {
   return Tx.contractCall("ryder-nft", "level-up-nfts", [], userAddress);
 }

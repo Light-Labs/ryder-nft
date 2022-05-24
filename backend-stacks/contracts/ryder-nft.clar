@@ -50,6 +50,7 @@
   (let ((sender-balance (get-balance tx-sender)))
     (asserts! (or (is-allowed-burner contract-caller) (is-owner id tx-sender)) err-not-authorized)
     (map-set token-count tx-sender (+ u1 sender-balance))
+    (print (nft-get-owner? ryder id))
     (nft-burn? ryder id tx-sender)))
 
 ;;
