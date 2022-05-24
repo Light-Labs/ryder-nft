@@ -22,13 +22,17 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: "Ensure that minter can't mint NFT with invalid id",
+  name: "Ensure that minter can't mint NFT with invalid id or invalid tier",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     let block = chain.mineBlock([mint(0, 1, deployer.address)]);
     block.receipts[0].result.expectErr().expectUint(500);
     block = chain.mineBlock([mint(5001, 1, deployer.address)]);
     block.receipts[0].result.expectErr().expectUint(500);
+    block = chain.mineBlock([mint(1, 0, deployer.address)]);
+    block.receipts[0].result.expectErr().expectUint(501);
+    block = chain.mineBlock([mint(1, 8, deployer.address)]);
+    block.receipts[0].result.expectErr().expectUint(501);
   },
 });
 

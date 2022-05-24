@@ -7,20 +7,23 @@
 ;; Constants
 (define-constant DEPLOYER tx-sender)
 (define-constant MINT-LIMIT u5000)
+(define-constant TIERS (list 0x01 0x02 0x03 0x04 0x05 0x06 0x07))
 
 (define-constant err-not-authorized (err u403))
 (define-constant err-not-found (err u404))
-
 (define-constant err-invalid-id (err u500))
-(define-constant err-listing (err u501))
-(define-constant err-wrong-commission (err u502))
-(define-constant err-metadata-frozen (err u503))
-(define-constant err-already-done (err u504))
+(define-constant err-invalid-tier (err u501))
+(define-constant err-listing (err u502))
+(define-constant err-wrong-commission (err u503))
+(define-constant err-metadata-frozen (err u504))
+(define-constant err-already-done (err u505))
 (define-constant err-fatale (err u999))
 
 ;; Variables
 (define-map token-count principal uint)
 (define-map mint-info uint {tier: uint, mint-height: uint})
+
+(define-data-var current-level uint u0)
 (define-map levels uint uint)
 
 (define-data-var token-uri (string-ascii 80) "ipfs://ipfs/Qm../{id}.json")
@@ -38,6 +41,7 @@
   (let ((sender-balance (get-balance tx-sender)))
     (asserts! (is-allowed-minter contract-caller) err-not-authorized)
     (asserts! (and (>= id u1) (<= id MINT-LIMIT)) err-invalid-id)
+    (asserts! (and (>= tier u1) (<= tier u7)) err-invalid-tier)
     (map-set token-count tx-sender (+ u1 sender-balance))
     (map-set mint-info id {tier: tier, mint-height: block-height})
     (nft-mint? ryder id tx-sender)))
@@ -129,9 +133,11 @@
     (ok true)))
 
 (define-public (level-up-nfts)
-  (begin
+  (let ((new-level (+ u1 (var-get current-level))))
     (asserts! (is-admin tx-sender) err-not-authorized)
-    (asserts! (map-insert levels u1 block-height) err-already-done)
+    (asserts! (not (var-get metadata-frozen)) err-metadata-frozen)
+    (asserts! (map-insert levels new-level block-height) err-already-done)
+    (var-set current-level new-level)
     (ok true)))
 
 (define-public (set-admin (new-admin principal))
@@ -172,8 +178,12 @@
 (define-read-only (get-nft-seed (token-id uint))
 	(let
 		(
-			(level-up-height (unwrap! (map-get? levels u1) (ok 0x0000000000000000000000000000000000000000000000000000000000000000)))
-			(nft-seed (sha256 (concat (sha256 token-id) (unwrap! (get-block-info? vrf-seed level-up-height) err-fatale))))
+      (tier (get tier (unwrap! (map-get? mint-info token-id) err-not-found)))
+      (tier-byte (unwrap! (element-at TIERS (- tier u1)) err-not-found))
+			(level-up-height 
+        (unwrap! (map-get? levels (var-get current-level)) 
+          (ok (concat tier-byte 0x0000000000000000000000000000000000000000000000000000000000000000))))
+			(nft-seed (concat tier-byte (sha256 (concat (sha256 token-id) (unwrap! (get-block-info? vrf-seed level-up-height) err-fatale)))))
 		)
 		(ok nft-seed)))
     

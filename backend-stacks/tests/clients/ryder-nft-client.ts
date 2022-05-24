@@ -66,3 +66,16 @@ export function buyInUstx(id: number, commission: string, userAddress: string) {
 export function setMinter(newMinter: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-minter", [newMinter], userAddress);
 }
+
+export function levelUpNfts(userAddress: string) {
+  return Tx.contractCall("ryder-nft", "level-up-nfts", [], userAddress);
+}
+
+export function getNftSeed(chain: Chain, id: number, userAddress: string) {
+  return chain.callReadOnlyFn(
+    "ryder-nft",
+    "get-nft-seed",
+    [types.uint(id)],
+    userAddress
+  );
+}
