@@ -17,6 +17,15 @@ export function flipMintActive(userAddress: string) {
   return Tx.contractCall("ryder-mint", "flip-mint-active", [], userAddress);
 }
 
-export function shuffleIds(userAddress: string) {
-  return Tx.contractCall("ryder-mint", "shuffle-ids", [], userAddress);
+export function dickson4973Permut(
+  chain: Chain,
+  index: number,
+  userAddress: string
+) {
+  return chain.callReadOnlyFn(
+    "ryder-mint",
+    "dickson-4973-permut",
+    [types.uint(index)],
+    userAddress
+  ).result;
 }
