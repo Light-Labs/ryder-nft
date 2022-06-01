@@ -54,7 +54,8 @@ Clarinet.test({
     expectNumberOfNfts(chain, 0, wallet_1.address);
 
 
-    // increase mint-limit of tier 2
+    // increase mint-limit of tier 2 by 1 on stx
+    // decrease mint-limit of tier 2 by 1 on eth
     block = chain.mineBlock([
       setMintLimits(
         [0, 0, 1, 0, 0, 0, 0, 0],
@@ -68,7 +69,7 @@ Clarinet.test({
     block.receipts[0].result.expectOk().expectBool(true);
     expectNumberOfNfts(chain, 1, wallet_1.address);
 
-    // try to increase the total mint
+    // try to increase the mint-limit of tier 1 by 1 on stx only
     block = chain.mineBlock([
       setMintLimits(
         [0, 1, 1, 0, 0, 0, 0, 0],
@@ -76,7 +77,7 @@ Clarinet.test({
         deployer.address
       ),
     ]);
-    block.receipts[0].result.expectErr().expectBool(true);
+    block.receipts[0].result.expectErr().expectUint(504); // invalid limits
 
   },
 });
