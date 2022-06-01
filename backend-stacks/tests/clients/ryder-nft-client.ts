@@ -1,4 +1,4 @@
-import { Chain, Tx, types, Account } from "../deps.ts";
+import { Chain, Tx, types, Account, assertEquals } from "../deps.ts";
 
 export function mint(id: number, tier: number, userAddress: string) {
   return Tx.contractCall(
@@ -67,7 +67,6 @@ export function setMinter(newMinter: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-minter", [newMinter], userAddress);
 }
 
-
 export function setBurner(newBurner: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-burner", [newBurner], userAddress);
 }
@@ -83,4 +82,13 @@ export function getNftSeed(chain: Chain, id: number, userAddress: string) {
     [types.uint(id)],
     userAddress
   );
+}
+
+export function expectNumberOfNfts(
+  chain: Chain,
+  count: number,
+  userAddress: string
+) {
+  const nfts = chain.getAssetsMaps().assets[`.ryder-nft.ryder`];
+  assertEquals(count, nfts ? nfts[userAddress] || 0 : 0);
 }

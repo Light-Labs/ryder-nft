@@ -7,11 +7,16 @@
 
 (define-public (mint (id uint) (tier uint))
     (begin
-        (match (contract-call? .ryder-nft get-mint-info id)
-            mint-info (let ((old-tier (get tier mint-info)))
-                        (asserts! (is-eq old-tier tier) err-invalid-tier))
-            true)
+        ;; check that
+        (asserts! (is-eq (default-to tier (get-tier id)) tier) err-invalid-tier)
         (contract-call? .ryder-nft mint id tier)))
 
 (define-public (burn (id uint))
-    (contract-call? .ryder-nft burn id))
+    (begin
+        (try! (contract-call? .ryder-nft burn id))
+        (ok true)))
+
+(define-private (get-tier (id uint))
+    (match (contract-call? .ryder-nft get-mint-info id)
+        mint-info (some (get tier mint-info))
+        none))

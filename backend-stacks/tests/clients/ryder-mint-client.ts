@@ -17,6 +17,13 @@ export function flipMintActive(userAddress: string) {
   return Tx.contractCall("ryder-mint", "flip-mint-active", [], userAddress);
 }
 
+export function setMintLimits(mintLimitsStx: number[], mintLimitsEth: number[], userAddress: string) {
+  return Tx.contractCall("ryder-mint", "set-mint-limits", [
+    types.list(mintLimitsStx.map(n => types.uint(n))),
+    types.list(mintLimitsEth.map(n => types.uint(n))),
+  ], userAddress);
+}
+
 export function dickson4973Permut(
   chain: Chain,
   index: number,

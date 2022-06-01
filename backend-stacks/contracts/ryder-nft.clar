@@ -6,7 +6,7 @@
 
 ;; Constants
 (define-constant DEPLOYER tx-sender)
-(define-constant MINT-LIMIT u5000)
+(define-constant MINT-LIMIT u4973)
 (define-constant TIERS (list 0x01 0x02 0x03 0x04 0x05 0x06 0x07))
 
 (define-constant err-not-authorized (err u403))
