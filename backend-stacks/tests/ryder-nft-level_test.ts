@@ -53,5 +53,26 @@ Clarinet.test({
           "0x071ac78a0b076f315f3c1a9ec6d04c249418584e4c2d05617e5f626c480facd0a8"
         )
       );
+
+    // more up levelling possible
+    block = chain.mineBlock([levelUpNfts(deployer.address)]);
+    block.receipts[0].result.expectOk().expectBool(true);
+
+    seed = getNftSeed(chain, 1, deployer.address);
+    seed.result
+      .expectOk()
+      .expectBuff(
+        hexToArrayBuffer(
+          "0x0126bd6e7bff6795ac7cb7442fadb0f4f3e3d733ef36c5de864739e8daff6fa321"
+        )
+      );
+    seed = getNftSeed(chain, 2, deployer.address);
+    seed.result
+      .expectOk()
+      .expectBuff(
+        hexToArrayBuffer(
+          "0x078b8a92d2ac81d60a6f8d90458ae6b714f9006d287df36bde22d17b01459fcd87"
+        )
+      );
   },
 });

@@ -99,6 +99,7 @@
 (define-public (set-mint-limits (new-limits-stx (list 8 uint)) (new-limits-eth (list 8 uint)))
   (let ((total-stx (fold + new-limits-stx u0))
     (total (fold + new-limits-eth total-stx)))
+    ;; TODO check limits of tier
     (asserts! (is-admin tx-sender) err-not-authorized)
     (asserts! (is-eq total MINT-LIMIT) err-invalid-limits)
     (var-set mint-limits-stx new-limits-stx)

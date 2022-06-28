@@ -63,6 +63,23 @@ export function buyInUstx(id: number, commission: string, userAddress: string) {
   );
 }
 
+export function setTokenUri(newTokenUri: string, userAddress: string) {
+  return Tx.contractCall(
+    "ryder-nft",
+    "set-token-uri",
+    [types.ascii(newTokenUri)],
+    userAddress
+  );
+}
+
+export function freezeMetadata(userAddress: string) {
+  return Tx.contractCall("ryder-nft", "freeze-metadata", [], userAddress);
+}
+
+export function setAdmin(newAdmin: string, userAddress: string) {
+  return Tx.contractCall("ryder-nft", "set-admin", [newAdmin], userAddress);
+}
+
 export function setMinter(newMinter: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-minter", [newMinter], userAddress);
 }

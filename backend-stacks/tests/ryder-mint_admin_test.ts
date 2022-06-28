@@ -78,6 +78,5 @@ Clarinet.test({
       ),
     ]);
     block.receipts[0].result.expectErr().expectUint(504); // invalid limits
-
   },
 });

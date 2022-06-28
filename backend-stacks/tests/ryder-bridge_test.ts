@@ -76,7 +76,7 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: "Ensure that user can't burn not-owned nft via bridge",
+  name: "Ensure that user can't burn not-owned nft via bridge due to bug in clarity",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     const wallet_1 = accounts.get("wallet_1")!;

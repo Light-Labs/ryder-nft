@@ -188,6 +188,9 @@
 		)
 		(ok nft-seed)))
     
+(define-read-only (get-current-level)
+  (var-get current-level))
+
 ;;
 ;; Non-custodial marketplace
 ;;

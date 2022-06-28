@@ -7,7 +7,7 @@
 
 (define-public (mint (id uint) (tier uint))
     (begin
-        ;; check that
+        ;; check that id does not change the tier
         (asserts! (is-eq (default-to tier (get-tier id)) tier) err-invalid-tier)
         (contract-call? .ryder-nft mint id tier)))
 
