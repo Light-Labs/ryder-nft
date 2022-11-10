@@ -42,7 +42,7 @@ Clarinet.test({
       .expectOk()
       .expectBuff(
         hexToArrayBuffer(
-          "0x01cc4e2625d1277f875aa032830235475e94bf05576c31513b9122f81034cf9c58"
+          "0x01c60c77a2fe4c38114522d186d6119fc1848260ecb95e1ef6f7fb3f7c96d76717"
         )
       );
     seed = getNftSeed(chain, 2, deployer.address);
@@ -50,7 +50,7 @@ Clarinet.test({
       .expectOk()
       .expectBuff(
         hexToArrayBuffer(
-          "0x071ac78a0b076f315f3c1a9ec6d04c249418584e4c2d05617e5f626c480facd0a8"
+          "0x073454e94b5a91395e14a39bc73c64275356b0b2d84b1ba863b93676169e2d6559"
         )
       );
 
@@ -63,7 +63,7 @@ Clarinet.test({
       .expectOk()
       .expectBuff(
         hexToArrayBuffer(
-          "0x0126bd6e7bff6795ac7cb7442fadb0f4f3e3d733ef36c5de864739e8daff6fa321"
+          "0x010e08fc97da36d9800aaeb091f2e452f9d80fbf6cf9dfbbd08b38e74fa8a9c890"
         )
       );
     seed = getNftSeed(chain, 2, deployer.address);
@@ -71,7 +71,7 @@ Clarinet.test({
       .expectOk()
       .expectBuff(
         hexToArrayBuffer(
-          "0x078b8a92d2ac81d60a6f8d90458ae6b714f9006d287df36bde22d17b01459fcd87"
+          "0x0769d25bd20a53aa4cc128fed1f88f541f840473492b66242ca9a921ad42fb4a95"
         )
       );
   },

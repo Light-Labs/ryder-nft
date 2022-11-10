@@ -5,18 +5,18 @@ import {
   types,
   Account,
   ReadOnlyFn,
-} from "https://deno.land/x/clarinet@v0.28.0/index.ts";
+} from "https://deno.land/x/clarinet@v1.0.5/index.ts";
 
 import {
   assertEquals,
   assertObjectMatch,
-} from "https://deno.land/std@0.106.0/testing/asserts.ts";
+} from "https://deno.land/std@0.163.0/testing/asserts.ts";
 
 import {
   beforeEach,
   describe,
   it,
-} from "https://deno.land/x/test_suite@v0.8.0/mod.ts";
+} from "https://deno.land/x/test_suite@0.16.1/mod.ts";
 
 export {
   Clarinet,
