@@ -33,6 +33,25 @@ export function setMintLimit(mintLimit: number, userAddress: string) {
   );
 }
 
+
+export function shufflePrepare(userAddress: string) {
+  return Tx.contractCall(
+    "ryder-nft",
+    "shuffle-prepare",
+    [],
+    userAddress
+  );
+}
+
+export function shuffleIds(userAddress: string) {
+  return Tx.contractCall(
+    "ryder-nft",
+    "shuffle-ids",
+    [],
+    userAddress
+  );
+}
+
 export function setAllowListedMany(userAddresses: string[], userAddress: string) {
   return Tx.contractCall(
     "ryder-nft",

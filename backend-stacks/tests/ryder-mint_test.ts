@@ -1,13 +1,12 @@
 import { Clarinet, Tx, Chain, Account, types, assertEquals } from "./deps.ts";
-import { expectNumberOfNfts } from "./clients/ryder-nft-client.ts";
 import {
   setLaunched,
   enabledPublicMint,
   setPublicMint,
   dickson5003Permut,
   MINT_LIMIT,
+  claim,
 } from "./clients/ryder-mint-client.ts";
-import { claim } from "./clients/ryder-mint-client.ts";
 
 const MINT_PRICE = 1000_000_000;
 
@@ -63,21 +62,19 @@ Clarinet.test({
   },
 });
 
-/*
 Clarinet.test({
   name: "Ensure that all nft ids are mintable",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
-    const nftIds: any = {};
+    const tierIds: any = {};
     for (let i = 1; i <= MINT_LIMIT; ++i) {
-      const nftId = dickson5003Permut(chain, i, 100, deployer.address);
-      if (nftIds[nftId]) {
-        throw new Error("err " + nftId + " " + nftIds[nftId] + " " + i);
+      const tierId = dickson5003Permut(chain, i, 0, deployer.address);
+      if (tierIds[tierId]) {
+        throw new Error("err " + tierId + " " + tierIds[tierId] + " " + i);
       } else {
-        nftIds[nftId] = i;
+        tierIds[tierId] = i;
       }
     }
-    assertEquals(Object.keys(nftIds).length, MINT_LIMIT);
+    assertEquals(Object.keys(tierIds).length, MINT_LIMIT);
   },
 });
-*/

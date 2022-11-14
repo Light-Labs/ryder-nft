@@ -8,20 +8,21 @@
 (define-constant DEPLOYER tx-sender)
 (define-constant MAX-TOKENS u5003)
 (define-constant MAX-MINT-PER-PRINCIPAL u2)
-(define-constant TIER-LOWER-BOUNDS (list u1 u104 u4369 u4869 u4989 u4999))
+(define-constant TIER-LOWER-BOUNDS (list u103 u4368 u4868 u4968 u4988 u4998))
 
-;; Range for tiers
-;;     1-103: BASIC
-;;  104-4368: JET BLACK
-;; 4369-4868: SCHMELZE
-;; 4869-4968: ARGENT
-;; 4969-4988: DUTCH GOLD
-;; 4989-4998: TOKYO LIGHTS
-;; 4999-5003: RECHERCHE
+;; Range for tier ids from 0 to 5002
+;;     0-102: BASIC
+;;  103-4367: JET BLACK
+;; 4368-4867: SCHMELZE
+;; 4868-4967: ARGENT
+;; 4968-4987: DUTCH GOLD
+;; 4988-4997: TOKYO LIGHTS
+;; 4998-5002: RECHERCHE
 
 (define-constant err-unauthorized (err u403))
 (define-constant err-not-found (err u404))
 (define-constant err-invalid-id (err u500))
+(define-constant err-too-early (err u501))
 (define-constant err-listing (err u502))
 (define-constant err-wrong-commission (err u503))
 (define-constant err-already-done (err u505))
@@ -189,11 +190,16 @@
     (try! (check-is-admin))
     (ok (var-set payment-recipient recipient))))
 
-(define-public (shuffle-tokens)
+(define-public (shuffle-prepare)
   (begin
     (try! (check-is-admin))
-    (ok (var-set dickson-parameter 
-          (mod (unwrap! (get-block-info? time (- block-height u1)) err-fatale) u5003)))))
+    (asserts! (is-none (var-get shuffle-height)) err-already-done)
+    (ok (var-set shuffle-height (some block-height)))))
+
+(define-public (shuffle-ids)
+    (ok
+      (var-set dickson-parameter
+        (mod (unwrap! (get-block-info? time (unwrap! (var-get shuffle-height) err-too-early)) err-fatale) u5003))))
 
 ;; read-only functions
 (define-read-only (get-owner (token-id uint))
@@ -264,9 +270,10 @@
     (print {action: "buy-in-ustx", id: id})
     (ok true)))
 ;;
-;; calculate tier using dickson permutation with parameter a defined by shuffle height
+;; calculate tier using dickson permutation with parameter 'a' defined by shuffle height
 ;; Permutation polynomial is x^5 + a*x^3 + 1/5*a^2*x + a
 ;; 1/5 = 3002 in finite field over 5003
+(define-data-var shuffle-height (optional uint) none)
 (define-data-var dickson-parameter uint u0)
 (define-data-var ctx-tier-id uint u0)
 
@@ -275,17 +282,17 @@
 
 (define-read-only (token-id-to-tier-id (token-id uint))
   (let ((a (var-get dickson-parameter)))
-    (asserts! (> a u0) none)
+    (asserts! (is-some (var-get shuffle-height)) none)
     (some (dickson-5003-permut token-id a))))
 
-(define-private (in-lower-bounds (tier-lower-bound uint) (ctx {tier: uint, tier-id: uint}))
-  {tier: (if (> (var-get ctx-tier-id) tier-lower-bound)
-    (+ (get tier ctx) u1)
-    (get tier ctx)),
+(define-private (in-bounds (tier-bound uint) (ctx {tier: uint, tier-id: uint}))
+  {tier: (if (< (get tier-id ctx) tier-bound)
+    (get tier ctx)
+    (+ (get tier ctx) u1)),
   tier-id: (get tier-id ctx)})
 
 (define-read-only (get-tier (tier-id uint))
-    (get tier (fold in-lower-bounds TIER-LOWER-BOUNDS {tier: u1, tier-id: tier-id})))
+    (get tier (fold in-bounds TIER-LOWER-BOUNDS {tier: u1, tier-id: tier-id})))
 
 (define-read-only (get-tier-by-token-id (token-id uint))
     (get-tier (unwrap! (token-id-to-tier-id token-id) u0)))

@@ -67,11 +67,53 @@ export function setAdmin(newAdmin: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-admin", [newAdmin], userAddress);
 }
 
-export function getNftSeed(chain: Chain, id: number, userAddress: string) {
+export function getTierByTokenId(
+  chain: Chain,
+  id: number,
+  userAddress: string
+) {
   return chain.callReadOnlyFn(
     "ryder-nft",
-    "get-nft-seed",
+    "get-tier-by-token-id",
     [types.uint(id)],
+    userAddress
+  );
+}
+
+
+export function getTierId(
+  chain: Chain,
+  id: number,
+  userAddress: string
+) {
+  return chain.callReadOnlyFn(
+    "ryder-nft",
+    "token-id-to-tier-id",
+    [types.uint(id)],
+    userAddress
+  );
+}
+
+
+export function getTier(
+  chain: Chain,
+  tierId: number,
+  userAddress: string
+) {
+  return chain.callReadOnlyFn(
+    "ryder-nft",
+    "get-tier",
+    [types.uint(tierId)],
+    userAddress
+  );
+}
+
+
+export function getDicksonParameter(chain: Chain, userAddress: string) {
+  return chain.callReadOnlyFn(
+    "ryder-nft",
+    "get-dickson-parameter",
+    [],
     userAddress
   );
 }
