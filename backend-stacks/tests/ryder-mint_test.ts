@@ -5,6 +5,7 @@ import {
   flipMintActive,
   mintMany,
   dickson4973Permut,
+  MINT_LIMIT,
 } from "./clients/ryder-mint-client.ts";
 
 export const shuffleHeight = 10;
@@ -141,7 +142,7 @@ Clarinet.test({
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     const nftIds: any = {};
-    for (let i = 1; i < 4974; i++) {
+    for (let i = 1; i < MINT_LIMIT; ++i) {
       const nftId = dickson4973Permut(chain, i, deployer.address);
       if (nftIds[nftId]) {
         throw new Error("err " + nftId + " " + nftIds[nftId] + " " + i);
@@ -149,6 +150,6 @@ Clarinet.test({
         nftIds[nftId] = i;
       }
     }
-    assertEquals(Object.keys(nftIds).length, 4973);
+    assertEquals(Object.keys(nftIds).length, MINT_LIMIT);
   },
 });

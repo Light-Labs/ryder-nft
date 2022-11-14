@@ -1,40 +1,30 @@
 [project]
-name = "backend-stacks"
+name = 'backend-stacks'
+description = ''
 authors = []
-description = ""
-telemetry = true
-cache_dir = "/home/friedger/.clarinet/cache"
-boot_contracts = ["pox", "costs-v2", "bns"]
+telemetry = false
+cache_dir = '.cache'
 
 [[project.requirements]]
-contract_id="SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait"
+contract_id = 'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait'
 
 [[project.requirements]]
-contract_id="SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait" 
+contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
 
 [contracts.commission-free]
-path = "contracts/external/commission-free.clar"
-depends_on = []
-
-[contracts.ryder-bridge]
-path = "contracts/ryder-bridge.clar"
-depends_on = ["ryder-nft"]
-
-
-[contracts.ryder-mint]
-path = "contracts/ryder-mint.clar"
-depends_on = ["ryder-nft"]
+path = 'contracts/external/commission-free.clar'
+clarity_version = 1
 
 [contracts.ryder-nft]
-path = "contracts/ryder-nft.clar"
-depends_on = []
+path = 'contracts/ryder-nft.clar'
+clarity_version = 1
 
-[repl]
-costs_version = 2
-parser_version = 2
+[contracts.ryder-nft-allow-list]
+path = 'contracts/ryder-nft-allow-list.clar'
+clarity_version = 1
 
 [repl.analysis]
-passes = ["check_checker"]
+passes = ['check_checker']
 
 [repl.analysis.check_checker]
 strict = false

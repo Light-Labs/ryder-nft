@@ -1,5 +1,7 @@
 import { Chain, Tx, types, Account } from "../deps.ts";
 
+export const MINT_LIMIT = 5003;
+
 export function claim(userAddress: string) {
   return Tx.contractCall("ryder-mint", "claim", [], userAddress);
 }
