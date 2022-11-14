@@ -5,7 +5,7 @@ import {
   types,
   Account,
   ReadOnlyFn,
-} from "https://deno.land/x/clarinet@v1.0.5/index.ts";
+} from "https://deno.land/x/clarinet@v1.0.6/index.ts";
 
 import {
   assertEquals,

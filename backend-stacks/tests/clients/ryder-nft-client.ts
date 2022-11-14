@@ -1,14 +1,5 @@
 import { Chain, Tx, types, Account, assertEquals } from "../deps.ts";
 
-export function mint(id: number, tier: number, userAddress: string) {
-  return Tx.contractCall(
-    "ryder-nft",
-    "mint",
-    [types.uint(id), types.uint(tier)],
-    userAddress
-  );
-}
-
 export function burn(id: number, userAddress: string) {
   return Tx.contractCall("ryder-nft", "burn", [types.uint(id)], userAddress);
 }
@@ -72,24 +63,8 @@ export function setTokenUri(newTokenUri: string, userAddress: string) {
   );
 }
 
-export function freezeMetadata(userAddress: string) {
-  return Tx.contractCall("ryder-nft", "freeze-metadata", [], userAddress);
-}
-
 export function setAdmin(newAdmin: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-admin", [newAdmin], userAddress);
-}
-
-export function setMinter(newMinter: string, userAddress: string) {
-  return Tx.contractCall("ryder-nft", "set-minter", [newMinter], userAddress);
-}
-
-export function setBurner(newBurner: string, userAddress: string) {
-  return Tx.contractCall("ryder-nft", "set-burner", [newBurner], userAddress);
-}
-
-export function levelUpNfts(userAddress: string) {
-  return Tx.contractCall("ryder-nft", "level-up-nfts", [], userAddress);
 }
 
 export function getNftSeed(chain: Chain, id: number, userAddress: string) {
@@ -107,5 +82,5 @@ export function expectNumberOfNfts(
   userAddress: string
 ) {
   const nfts = chain.getAssetsMaps().assets[`.ryder-nft.ryder`];
-  assertEquals(count, nfts ? nfts[userAddress] || 0 : 0);
+  assertEquals(count, nfts ? nfts[userAddress] || 0 : 0, count);
 }

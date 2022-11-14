@@ -8,26 +8,22 @@
 (define-constant DEPLOYER tx-sender)
 (define-constant MAX-TOKENS u5003)
 (define-constant MAX-MINT-PER-PRINCIPAL u2)
-(define-constant TIERS (list 0x01 0x02 0x03 0x04 0x05 0x06 0x07))
-(define-constant TIER-UPPER-BOUNDS (list u0 u10 u400))
+(define-constant TIER-LOWER-BOUNDS (list u1 u104 u4369 u4869 u4989 u4999))
 
-
-;;TODO:
-;;     1-100: BASIC
-;;  101-4365: JET BLACK
-;; 4366-4865: SCHMELZE
-;; 4866-4965: ARGENT
-;; 4966-4985: DUTCH GOLD
-;; 4992: TOKYO LIGHTS
-;; : RECHERCHE
+;; Range for tiers
+;;     1-103: BASIC
+;;  104-4368: JET BLACK
+;; 4369-4868: SCHMELZE
+;; 4869-4968: ARGENT
+;; 4969-4988: DUTCH GOLD
+;; 4989-4998: TOKYO LIGHTS
+;; 4999-5003: RECHERCHE
 
 (define-constant err-unauthorized (err u403))
 (define-constant err-not-found (err u404))
 (define-constant err-invalid-id (err u500))
-(define-constant err-invalid-tier (err u501))
 (define-constant err-listing (err u502))
 (define-constant err-wrong-commission (err u503))
-(define-constant err-metadata-frozen (err u504))
 (define-constant err-already-done (err u505))
 (define-constant err-not-launched (err u506))
 (define-constant err-max-mint-reached (err u507))
@@ -36,7 +32,7 @@
 ;; Variables
 (define-data-var token-uri (string-ascii 80) "ipfs://ipfs/Qm../{id}.json")
 (define-data-var mint-launched bool false)
-(define-data-var price-in-ustx uint u1)
+(define-data-var price-in-ustx uint u1000000000)
 (define-data-var token-id-nonce uint u1)
 (define-data-var public-mint bool false)
 (define-data-var mint-limit uint u2000)
@@ -65,6 +61,22 @@
     (var-set token-id-nonce (+ token-id u1))
     (try! (stx-transfer? (var-get price-in-ustx) tx-sender (var-get payment-recipient)))
     (nft-mint? ryder token-id tx-sender)))
+
+(define-public (claim)
+  (mint))
+
+(define-public (claim-two)
+  (begin
+    (try! (mint))
+    (mint)))
+
+(define-public (claim-ten)
+  ;; TODO
+  err-fatale)
+
+(define-public (claim-fifty)
+  ;; TODO
+  err-fatale)
 
 (define-public (burn (id uint))
   (begin
@@ -133,6 +145,7 @@
 (define-public (set-token-uri (new-uri (string-ascii 80)))
   (begin
     (try! (check-is-admin))
+    ;; TODO check if metadata is frozen
     (var-set token-uri new-uri)
     (ok true)))
 
@@ -146,6 +159,11 @@
   (begin
     (try! (check-is-admin))
     (ok (var-set mint-launched launched))))
+
+(define-public (set-public-mint (launched bool))
+  (begin
+    (try! (check-is-admin))
+    (ok (var-set public-mint launched))))
 
 (define-public (set-price-in-ustx (price uint))
   (begin
@@ -163,6 +181,7 @@
 (define-public (set-mint-limit (limit uint))
   (begin
     (try! (check-is-admin))
+    (asserts! (<= limit MAX-TOKENS) err-max-mint-reached)
     (ok (var-set mint-limit limit))))
 
 (define-public (set-payment-recipient (recipient principal))
@@ -170,12 +189,18 @@
     (try! (check-is-admin))
     (ok (var-set payment-recipient recipient))))
 
+(define-public (shuffle-tokens)
+  (begin
+    (try! (check-is-admin))
+    (ok (var-set dickson-parameter 
+          (mod (unwrap! (get-block-info? time (- block-height u1)) err-fatale) u5003)))))
+
 ;; read-only functions
 (define-read-only (get-owner (token-id uint))
   (ok (nft-get-owner? ryder token-id)))
 
 (define-read-only (get-last-token-id)
-  (ok u5000))
+  (ok (- (var-get token-id-nonce) u1)))
 
 (define-read-only (get-token-uri (token-id uint))
   (ok (some (var-get token-uri))))
@@ -192,6 +217,9 @@
 
 (define-read-only (get-token-id-nonce)
   (var-get token-id-nonce))
+
+(define-read-only (get-mint-launched)
+  (var-get mint-launched))
 
 (define-read-only (get-public-mint)
   (var-get public-mint))
@@ -236,14 +264,32 @@
     (print {action: "buy-in-ustx", id: id})
     (ok true)))
 ;;
-;; calculate dickson permutation with parameter defined by shuffle height
-;;
+;; calculate tier using dickson permutation with parameter a defined by shuffle height
+;; Permutation polynomial is x^5 + a*x^3 + 1/5*a^2*x + a
+;; 1/5 = 3002 in finite field over 5003
 (define-data-var dickson-parameter uint u0)
+(define-data-var ctx-tier-id uint u0)
+
+(define-read-only (get-dickson-parameter)
+  (var-get dickson-parameter))
 
 (define-read-only (token-id-to-tier-id (token-id uint))
   (let ((a (var-get dickson-parameter)))
     (asserts! (> a u0) none)
     (some (dickson-5003-permut token-id a))))
 
+(define-private (in-lower-bounds (tier-lower-bound uint) (ctx {tier: uint, tier-id: uint}))
+  {tier: (if (> (var-get ctx-tier-id) tier-lower-bound)
+    (+ (get tier ctx) u1)
+    (get tier ctx)),
+  tier-id: (get tier-id ctx)})
+
+(define-read-only (get-tier (tier-id uint))
+    (get tier (fold in-lower-bounds TIER-LOWER-BOUNDS {tier: u1, tier-id: tier-id})))
+
+(define-read-only (get-tier-by-token-id (token-id uint))
+    (get-tier (unwrap! (token-id-to-tier-id token-id) u0)))
+
 (define-read-only (dickson-5003-permut (x uint) (a uint))
   (mod (+ (pow x u5) (* a (pow x u3)) (* a a x u3002) a) MAX-TOKENS))
+

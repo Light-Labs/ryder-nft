@@ -1,21 +1,25 @@
 import { Clarinet, Tx, Chain, Account, types, assertEquals } from "./deps.ts";
 import {
-  mint,
   transfer,
   listInUstx,
   buyInUstx,
   unlistInUstx,
+  setLaunched,
 } from "./clients/ryder-nft-client.ts";
+import { claim, enabledPublicMint } from "./clients/ryder-mint-client.ts";
 
 Clarinet.test({
   name: "Ensure that NFT can be listed and unlisted",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     let deployer = accounts.get("deployer")!;
+    let wallet_1 = accounts.get("wallet_1")!;
     const commissionFree = `'${deployer.address}.commission-free`;
+    enabledPublicMint(chain, deployer);
+
     let block = chain.mineBlock([
-      mint(1, 1, deployer.address),
-      listInUstx(1, 50000000, commissionFree, deployer.address),
-      unlistInUstx(1, deployer.address),
+      claim(wallet_1.address),
+      listInUstx(1, 50000000, commissionFree, wallet_1.address),
+      unlistInUstx(1, wallet_1.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
@@ -29,12 +33,13 @@ Clarinet.test({
     let deployer = accounts.get("deployer")!;
     let wallet_1 = accounts.get("wallet_1")!;
     const commissionFree = `'${deployer.address}.commission-free`;
+    enabledPublicMint(chain, deployer);
 
     let block = chain.mineBlock([
-      mint(1, 1, deployer.address),
-      listInUstx(1, 50000000, commissionFree, deployer.address),
+      claim(wallet_1.address),
       listInUstx(1, 50000000, commissionFree, wallet_1.address),
-      unlistInUstx(1, wallet_1.address),
+      listInUstx(1, 50000000, commissionFree, deployer.address),
+      unlistInUstx(1, deployer.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
@@ -48,12 +53,14 @@ Clarinet.test({
   async fn(chain: Chain, accounts: Map<string, Account>) {
     let deployer = accounts.get("deployer")!;
     let wallet_1 = accounts.get("wallet_1")!;
+    let wallet_2 = accounts.get("wallet_2")!;
     const commissionFree = `'${deployer.address}.commission-free`;
+    enabledPublicMint(chain, deployer);
 
     let block = chain.mineBlock([
-      mint(1, 1, deployer.address),
-      listInUstx(1, 50000000, commissionFree, deployer.address),
-      transfer(1, deployer.address, wallet_1.address),
+      claim(wallet_1.address),
+      listInUstx(1, 50000000, commissionFree, wallet_1.address),
+      transfer(1, wallet_1.address, wallet_2.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
@@ -66,12 +73,14 @@ Clarinet.test({
   async fn(chain: Chain, accounts: Map<string, Account>) {
     let deployer = accounts.get("deployer")!;
     let wallet_1 = accounts.get("wallet_1")!;
+    let wallet_2 = accounts.get("wallet_2")!;
     const commissionFree = `'${deployer.address}.commission-free`;
+    enabledPublicMint(chain, deployer);
 
     let block = chain.mineBlock([
-      mint(1, 1, deployer.address),
-      listInUstx(1, 50_000_000, commissionFree, deployer.address),
-      buyInUstx(1, commissionFree, wallet_1.address),
+      claim(wallet_1.address),
+      listInUstx(1, 50_000_000, commissionFree, wallet_1.address),
+      buyInUstx(1, commissionFree, wallet_2.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
@@ -81,8 +90,8 @@ Clarinet.test({
     let logEventbuy = block.receipts[2].events[2];
 
     assertEquals(stxEventbuy.stx_transfer_event.amount, "50000000");
-    assertEquals(stxEventbuy.stx_transfer_event.recipient, deployer.address);
-    assertEquals(nftEventbuy.nft_transfer_event.recipient, wallet_1.address);
+    assertEquals(stxEventbuy.stx_transfer_event.recipient, wallet_1.address);
+    assertEquals(nftEventbuy.nft_transfer_event.recipient, wallet_2.address);
   },
 });
 
@@ -91,13 +100,15 @@ Clarinet.test({
   async fn(chain: Chain, accounts: Map<string, Account>) {
     let deployer = accounts.get("deployer")!;
     let wallet_1 = accounts.get("wallet_1")!;
+    let wallet_2 = accounts.get("wallet_2")!;
     const commissionFree = `'${deployer.address}.commission-free`;
+    enabledPublicMint(chain, deployer);
 
     let block = chain.mineBlock([
-      mint(1, 1, deployer.address),
-      listInUstx(1, 50000000, commissionFree, deployer.address),
-      unlistInUstx(1, deployer.address),
-      buyInUstx(1, commissionFree, wallet_1.address),
+      claim(wallet_1.address),
+      listInUstx(1, 50000000, commissionFree, wallet_1.address),
+      unlistInUstx(1, wallet_1.address),
+      buyInUstx(1, commissionFree, wallet_2.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
