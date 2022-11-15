@@ -1,0 +1,26 @@
+{
+  "name": "metadata",
+  "version": "1.0.0",
+  "description": "Meta data for Ryder NFTs",
+  "main": "index.js",
+  "scripts": {
+    "generate": "ts-node scripts/generate-metadata.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/light-labs/ryder-nft.git"
+  },
+  "author": "",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/light-labs/ryder-nft/issues"
+  },
+  "homepage": "https://github.com/light-labs/ryder-nft#readme",
+  "devDependencies": {
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.9",
+    "micro-stacks": "^1.1.4"
+  }
+}

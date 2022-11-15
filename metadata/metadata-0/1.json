@@ -1,0 +1,23 @@
+{
+    "name": "Ryder NFT",
+    "description": "",
+    "image": "ipfs://Qm",
+    "external_url": "",
+    "attributes": [
+        {
+            "trait_type": "tier",
+            "value": "unrevealed"
+        }
+    ],
+    "localization": {
+        "uri": "ipfs://Qm/1/{locale}.json",
+        "default": "en",
+        "locales": [
+            "kr",
+            "zh",
+            "en",
+            "fr",
+            "de"
+        ]
+    }
+}

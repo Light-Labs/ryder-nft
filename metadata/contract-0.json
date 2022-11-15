@@ -1,0 +1,8 @@
+{
+    "name": "Ryder NFTs",
+    "description": "A digital collectible for a self-soverin future.",
+    "image": "external-link-url/image.png",
+    "external_link": "external-link-url",
+    "seller_fee_basis_points": 100,
+    "fee_recipient": "0xA97F337c39cccE66adfeCB2BF99C1DdC54C2D721"
+}
