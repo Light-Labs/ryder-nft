@@ -9,7 +9,7 @@ import {
 } from "./clients/ryder-mint-client.ts";
 
 Clarinet.test({
-  name: "Ensure that admin can activate and de-activate white-list mint and public mint",
+  name: "Ensure that admin can activate and de-activate allow-listed mint and public mint",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     const wallet_1 = accounts.get("wallet_1")!;

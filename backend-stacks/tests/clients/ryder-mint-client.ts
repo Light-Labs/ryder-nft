@@ -33,30 +33,21 @@ export function setMintLimit(mintLimit: number, userAddress: string) {
   );
 }
 
-
 export function shufflePrepare(userAddress: string) {
-  return Tx.contractCall(
-    "ryder-nft",
-    "shuffle-prepare",
-    [],
-    userAddress
-  );
+  return Tx.contractCall("ryder-nft", "shuffle-prepare", [], userAddress);
 }
 
 export function shuffleIds(userAddress: string) {
-  return Tx.contractCall(
-    "ryder-nft",
-    "shuffle-ids",
-    [],
-    userAddress
-  );
+  return Tx.contractCall("ryder-nft", "shuffle-ids", [], userAddress);
 }
-
-export function setAllowListedMany(userAddresses: string[], userAddress: string) {
+export function setAllowListedMany(
+  userAddresses: string[],
+  userAddress: string
+) {
   return Tx.contractCall(
     "ryder-nft",
     "set-allow-listed-many",
-    [types.list(userAddresses.map(s => types.principal(s)))],
+    [types.list(userAddresses.map((s) => types.principal(s)))],
     userAddress
   );
 }
