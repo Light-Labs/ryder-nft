@@ -19,22 +19,10 @@ Clarinet.test({
 
     block = chain.mineBlock([
       setLaunched(true, deployer.address),
-      claim(wallet_1.address),
+      setAllowListedMany([wallet_1.address], deployer.address)
     ]);
-    block.receipts[1].result.expectErr().expectUint(403); // err-unauthorized
-
-    chain.mineBlock([setAllowListedMany([wallet_1.address], deployer.address)]);
     block.receipts[0].result.expectOk().expectBool(true);
-
-    chain.mineBlock([
-      setAllowListedMany(
-        [...Array(200).keys()].map((s) => wallet_1.address),
-        deployer.address
-      ),
-    ]);
-
-    chain.mineBlock([claim(wallet_1.address)]);
-    block.receipts[0].result.expectOk().expectBool(true);
+    block.receipts[1].result.expectOk().expectList([true]);
   },
 });
 
@@ -62,6 +50,24 @@ Clarinet.test({
       claim(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
-    block.receipts[1].result.expectErr().expectUint(403); // err-max-mint-reached
+    block.receipts[1].result.expectErr().expectUint(507); // err-max-mint-reached
+  },
+});
+
+Clarinet.test({
+  name: "Ensure that non-allow-listed users cannot mint before public mint",
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const deployer = accounts.get("deployer")!;
+    const wallet_2 = accounts.get("wallet_2")!;
+
+    // try to mint before launch
+    let block = chain.mineBlock([claim(wallet_2.address)]);
+    block.receipts[0].result.expectErr().expectUint(506); // not launched
+
+    block = chain.mineBlock([
+      setLaunched(true, deployer.address),
+      claim(wallet_2.address),
+    ]);
+    block.receipts[1].result.expectErr().expectUint(403); // err-unauthorized
   },
 });
