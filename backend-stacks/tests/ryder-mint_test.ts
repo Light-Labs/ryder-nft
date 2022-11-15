@@ -63,7 +63,7 @@ Clarinet.test({
 });
 
 Clarinet.test({
-  name: "Ensure that all nft ids are mintable",
+  name: "Ensure that all nft ids are mintable and there are no doubles",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     const tierIds: any = {};

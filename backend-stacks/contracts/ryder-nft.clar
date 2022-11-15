@@ -10,6 +10,13 @@
 (define-constant MAX-MINT-PER-PRINCIPAL u2)
 (define-constant TIER-LOWER-BOUNDS (list u103 u4368 u4868 u4968 u4988 u4998))
 
+(define-constant TIER-LOWER-BOUND-T1 u103)
+(define-constant TIER-LOWER-BOUND-T2 u4368)
+(define-constant TIER-LOWER-BOUND-T3 u4868)
+(define-constant TIER-LOWER-BOUND-T4 u4968)
+(define-constant TIER-LOWER-BOUND-T5 u4988)
+(define-constant TIER-LOWER-BOUND-T6 u4998)
+
 ;; Range for tier ids from 0 to 5002
 ;;     0-102: BASIC
 ;;  103-4367: JET BLACK
@@ -41,6 +48,7 @@
 
 (define-map token-count principal uint)
 (define-map allow-list principal bool)
+(define-map mint-count principal uint)
 
 (define-map admins principal bool)
 (map-set admins tx-sender true)
@@ -52,13 +60,15 @@
 ;;
 (define-public (mint)
   (let ((sender-balance (get-balance tx-sender))
+        (sender-mint-count (default-to u0 (map-get? mint-count tx-sender)))
         (token-id (var-get token-id-nonce))
         (public-mint-started (var-get public-mint)))
     (asserts! (var-get mint-launched) err-not-launched)
     (asserts! (< token-id (var-get mint-limit)) err-already-done)
     (asserts! (or (is-allow-listed tx-sender) public-mint-started) err-unauthorized)
-    (asserts! (or (< sender-balance MAX-MINT-PER-PRINCIPAL) public-mint-started) err-max-mint-reached)
-    (map-set token-count tx-sender (+ u1 sender-balance))
+    (asserts! (or (< sender-mint-count MAX-MINT-PER-PRINCIPAL) public-mint-started) err-max-mint-reached)
+    (map-set token-count tx-sender (+ sender-balance u1))
+    (map-set mint-count tx-sender (+ sender-mint-count u1))
     (var-set token-id-nonce (+ token-id u1))
     (try! (stx-transfer? (var-get price-in-ustx) tx-sender (var-get payment-recipient)))
     (nft-mint? ryder token-id tx-sender)))
@@ -161,10 +171,10 @@
     (try! (check-is-admin))
     (ok (var-set mint-launched launched))))
 
-(define-public (set-public-mint (launched bool))
+(define-public (set-public-mint (is-public-mint bool))
   (begin
     (try! (check-is-admin))
-    (ok (var-set public-mint launched))))
+    (ok (var-set public-mint is-public-mint))))
 
 (define-public (set-price-in-ustx (price uint))
   (begin
@@ -199,14 +209,15 @@
 (define-public (shuffle-ids)
     (ok
       (var-set dickson-parameter
-        (mod (unwrap! (get-block-info? time (unwrap! (var-get shuffle-height) err-too-early)) err-fatale) u5003))))
+        (mod (unwrap! (get-block-info? time (unwrap! (var-get shuffle-height) err-too-early)) err-fatale) MAX-TOKENS))))
 
 ;; read-only functions
 (define-read-only (get-owner (token-id uint))
   (ok (nft-get-owner? ryder token-id)))
 
 (define-read-only (get-last-token-id)
-  (ok (- (var-get token-id-nonce) u1)))
+  (ok MAX-TOKENS))
+  ;;(ok (- (var-get token-id-nonce) u1)))
 
 (define-read-only (get-token-uri (token-id uint))
   (ok (some (var-get token-uri))))
@@ -235,6 +246,9 @@
 
 (define-read-only (get-payment-recipient)
   (var-get payment-recipient))
+
+(define-read-only (get-mint-count (who principal))
+  (default-to u0 (map-get? mint-count who)))
 
 ;;
 ;; Non-custodial marketplace
@@ -285,14 +299,15 @@
     (asserts! (is-some (var-get shuffle-height)) none)
     (some (dickson-5003-permut token-id a))))
 
-(define-private (in-bounds (tier-bound uint) (ctx {tier: uint, tier-id: uint}))
-  {tier: (if (< (get tier-id ctx) tier-bound)
-    (get tier ctx)
-    (+ (get tier ctx) u1)),
-  tier-id: (get tier-id ctx)})
-
 (define-read-only (get-tier (tier-id uint))
-    (get tier (fold in-bounds TIER-LOWER-BOUNDS {tier: u1, tier-id: tier-id})))
+  (begin
+    (asserts! (>= tier-id TIER-LOWER-BOUND-T1) u1)
+    (asserts! (>= tier-id TIER-LOWER-BOUND-T2) u2)
+    (asserts! (>= tier-id TIER-LOWER-BOUND-T3) u3)
+    (asserts! (>= tier-id TIER-LOWER-BOUND-T4) u4)
+    (asserts! (>= tier-id TIER-LOWER-BOUND-T5) u5)
+    (asserts! (>= tier-id TIER-LOWER-BOUND-T6) u6)
+    u7))
 
 (define-read-only (get-tier-by-token-id (token-id uint))
     (get-tier (unwrap! (token-id-to-tier-id token-id) u0)))
