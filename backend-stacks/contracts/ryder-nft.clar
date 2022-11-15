@@ -174,7 +174,7 @@
 (define-private (set-allow-listed-iter (who principal))
   (map-set allow-list who true))
 
-(define-public (set-allow-listed-many (entries (list 5003 principal)))
+(define-public (set-allow-listed-many (entries (list 200 principal)))
   (begin
     (try! (check-is-admin))
     (ok (map set-allow-listed-iter entries))))

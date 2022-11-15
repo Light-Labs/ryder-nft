@@ -28,7 +28,7 @@ Clarinet.test({
 
     chain.mineBlock([
       setAllowListedMany(
-        [...Array(5003).keys()].map((s) => wallet_1.address),
+        [...Array(200).keys()].map((s) => wallet_1.address),
         deployer.address
       ),
     ]);
