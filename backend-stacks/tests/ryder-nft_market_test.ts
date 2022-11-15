@@ -57,14 +57,23 @@ Clarinet.test({
     const commissionFree = `'${deployer.address}.commission-free`;
     enabledPublicMint(chain, deployer);
 
+    const PRICE_IN_USTX = 50_000_000;
     let block = chain.mineBlock([
       claim(wallet_1.address),
-      listInUstx(1, 50000000, commissionFree, wallet_1.address),
+      listInUstx(1, PRICE_IN_USTX, commissionFree, wallet_1.address),
       transfer(1, wallet_1.address, wallet_2.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
     block.receipts[2].result.expectErr().expectUint(502); // err-listing
+
+    let receipt = chain.callReadOnlyFn(
+      "ryder-nft",
+      "get-listing-in-ustx",
+      [types.uint(1)],
+      wallet_1.address
+    );
+    receipt.result.expectSome().expectTuple().price.expectUint(PRICE_IN_USTX);
   },
 });
 
@@ -92,6 +101,14 @@ Clarinet.test({
     assertEquals(stxEventbuy.stx_transfer_event.amount, "50000000");
     assertEquals(stxEventbuy.stx_transfer_event.recipient, wallet_1.address);
     assertEquals(nftEventbuy.nft_transfer_event.recipient, wallet_2.address);
+
+    let receipt = chain.callReadOnlyFn(
+      "ryder-nft",
+      "get-listing-in-ustx",
+      [types.uint(1)],
+      wallet_1.address
+    );
+    receipt.result.expectNone();
   },
 });
 
