@@ -456,4 +456,39 @@ contract NFToken is
     delete idToApproval[_tokenId];
   }
 
+
+
+    uint constant MAX_TOKENS = 5003;
+    uint dicksonParameter;
+
+    function setDicksonParameter(uint256 _dicksonParameter) external {
+        dicksonParameter = _dicksonParameter;
+    }
+
+    function tokenIdToTierId(uint256 _tokenId) public view returns (uint256) {
+        return
+            (_tokenId**5 +
+                dicksonParameter *
+                _tokenId**3 +
+                3002 *
+                dicksonParameter**2 *
+                _tokenId +
+                dicksonParameter) % MAX_TOKENS;
+    }
+
+    function tier(uint256 _tierId) public pure returns (uint256) {
+        return _tierId > 10 ? 1 : 2;
+    }
+
+    /**
+     *
+     */
+    function tierById(uint256 _tokenId)
+        external
+        view
+        validNFToken(_tokenId)
+        returns (uint)
+    {
+        return tier(tokenIdToTierId(_tokenId));
+    }
 }
