@@ -81,3 +81,37 @@ Clarinet.test({
     block.receipts[1].result.expectErr().expectUint(403); // err-unauthorized
   },
 });
+
+Clarinet.test({
+  name: "Ensure that any user can enable to predefined allow list",
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const deployer = accounts.get("deployer")!;
+    const wallet_1 = accounts.get("wallet_1")!;
+
+    let block = chain.mineBlock([
+      setLaunched(true, deployer.address),
+      setMinter(`'${deployer.address}.ryder-mint`, true, deployer.address),
+    ]);
+
+    block = chain.mineBlock([
+      claim(deployer.address),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-admin",
+        [`'${deployer.address}.ryder-nft-allow-list`, types.bool(true)],
+        deployer.address
+      ),
+      Tx.contractCall(
+        `ryder-nft-allow-list`,
+        "set-allow-list",
+        [],
+        wallet_1.address
+      ),
+      claim(deployer.address),
+    ]);
+    block.receipts[0].result.expectErr().expectUint(403); // err-unauthorized
+    block.receipts[1].result.expectOk();
+    block.receipts[2].result.expectOk();
+    block.receipts[3].result.expectErr().expectUint(2); // sender and recipient the same
+  },
+});

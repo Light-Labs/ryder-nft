@@ -63,6 +63,7 @@ Clarinet.test({
     let block = chain.mineBlock([
       claim(wallet_1.address),
       claim(wallet_1.address),
+      // 2) transfer 1 to from wallet1 to wallet2
       Tx.contractCall(
         "ryder-nft",
         "transfer-memo",
@@ -74,6 +75,7 @@ Clarinet.test({
         ],
         wallet_1.address
       ),
+      // 3) transfer 1 from wallet2 to wallet1
       Tx.contractCall(
         "ryder-nft",
         "transfer-many",
@@ -88,6 +90,7 @@ Clarinet.test({
         ],
         wallet_2.address
       ),
+      // 4) transfer 1,2 from wallet1 to wallet2 with memo
       Tx.contractCall(
         "ryder-nft",
         "transfer-memo-many",
@@ -109,12 +112,89 @@ Clarinet.test({
         ],
         wallet_1.address
       ),
+      // 5) transfer 3 from wallet1 to wallet2
+      Tx.contractCall(
+        "ryder-nft",
+        "transfer-many",
+        [
+          types.list([
+            types.tuple({
+              id: types.uint(3), // not owned id
+              sender: types.principal(wallet_1.address),
+              recipient: types.principal(wallet_2.address),
+            }),
+          ]),
+        ],
+        wallet_1.address
+      ),
+      // 6) transfer 3 from wallet1 to wallet2
+      Tx.contractCall(
+        "ryder-nft",
+        "transfer-memo-many",
+        [
+          types.list([
+            types.tuple({
+              id: types.uint(3), // not owned id
+              sender: types.principal(wallet_1.address),
+              recipient: types.principal(wallet_2.address),
+              memo: "0x6666",
+            }),
+          ]),
+        ],
+        wallet_1.address
+      ),
+      // 7) transfer 1,3 from wallet2 to wallet1
+      Tx.contractCall(
+        "ryder-nft",
+        "transfer-many",
+        [
+          types.list([
+            types.tuple({
+              id: types.uint(1),
+              sender: types.principal(wallet_2.address),
+              recipient: types.principal(wallet_1.address),
+            }),
+            types.tuple({
+              id: types.uint(3), // not owned id
+              sender: types.principal(wallet_2.address),
+              recipient: types.principal(wallet_1.address),
+            }),
+          ]),
+        ],
+        wallet_2.address
+      ),
+      // 8) transfer 2,3 from wallet2 to wallet1
+      Tx.contractCall(
+        "ryder-nft",
+        "transfer-memo-many",
+        [
+          types.list([
+            types.tuple({
+              id: types.uint(2),
+              sender: types.principal(wallet_2.address),
+              recipient: types.principal(wallet_1.address),
+              memo: "0x6666",
+            }),
+            types.tuple({
+              id: types.uint(3), // not owned id
+              sender: types.principal(wallet_2.address),
+              recipient: types.principal(wallet_1.address),
+              memo: "0x6767",
+            }),
+          ]),
+        ],
+        wallet_2.address
+      ),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
     block.receipts[2].result.expectOk().expectBool(true);
     block.receipts[3].result.expectOk().expectBool(true);
     block.receipts[4].result.expectOk().expectBool(true);
+    block.receipts[5].result.expectErr().expectUint(3);
+    block.receipts[6].result.expectErr().expectUint(3);
+    block.receipts[7].result.expectErr().expectUint(3);
+    block.receipts[8].result.expectErr().expectUint(3);
 
     block.receipts[2].events.expectNonFungibleTokenTransferEvent(
       types.uint(1),
@@ -164,7 +244,12 @@ Clarinet.test({
     enabledPublicMint(chain, deployer);
 
     let block = chain.mineBlock([
-      Tx.contractCall("ryder-nft", "mint", [types.principal(wallet_1.address)], wallet_1.address),
+      Tx.contractCall(
+        "ryder-nft",
+        "mint",
+        [types.principal(wallet_1.address)],
+        wallet_1.address
+      ),
     ]);
     block.receipts[0].result.expectErr().expectUint(403);
   },

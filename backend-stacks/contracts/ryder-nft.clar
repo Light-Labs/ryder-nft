@@ -82,9 +82,7 @@
 (define-private (transfer-iter-fn 
     (details {id: uint, sender: principal, recipient: principal}) 
     (result (response bool uint)))
-  (if (is-ok result)
-    (transfer (get id details) (get sender details) (get recipient details))
-    (ok false)))
+  (transfer (get id details) (get sender details) (get recipient details)))
 
 (define-public (transfer-many (recipients (list 200 {id: uint, sender: principal, recipient: principal})))
   (fold transfer-iter-fn recipients (ok true)))
@@ -92,10 +90,8 @@
 (define-private (transfer-memo-iter-fn 
     (details {id: uint, sender: principal, recipient: principal, memo: (buff 33)})
     (result (response bool uint)))
-  (if (is-ok result)
-    (transfer-memo (get id details) (get sender details) (get recipient details)
-    (get memo details))
-    (ok false)))
+  (transfer-memo (get id details) (get sender details) (get recipient details)
+      (get memo details)))
 
 (define-public (transfer-memo-many (recipients (list 200 {id: uint, sender: principal,
                                       recipient: principal, memo: (buff 33)})))
@@ -103,9 +99,10 @@
 
 (define-private (transfer-internal (id uint) (sender principal) (recipient principal))
   (begin
+    (try! (nft-transfer? ryder id sender recipient))
     (map-set token-count sender (- (get-balance sender) u1))
     (map-set token-count recipient (+ (get-balance recipient) u1))
-    (nft-transfer? ryder id sender recipient)))
+    (ok true)))
 
 ;; guard functions
 (define-read-only (is-owner (id uint) (account principal))
@@ -152,6 +149,7 @@
   (begin
     (try! (check-is-admin))
     (asserts! (<= limit MAX-TOKENS) err-max-mint-reached)
+    (asserts! (>= limit (var-get token-id-nonce)) err-max-mint-reached)
     (ok (var-set mint-limit limit))))
 
 (define-public (shuffle-prepare)

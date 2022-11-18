@@ -44,6 +44,9 @@ Clarinet.test({
     block = chain.mineBlock([claim(wallet_1.address)]);
     block.receipts[0].result.expectErr().expectUint(505); // err-already-done
     expectNumberOfNfts(chain, 2, wallet_1.address);
+
+    block = chain.mineBlock([setMintLimit(1, deployer.address)]);
+    block.receipts[0].result.expectErr().expectUint(507); // invalid mint limit
   },
 });
 

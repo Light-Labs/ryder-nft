@@ -69,7 +69,7 @@
 
 ;; admin functions
 (define-read-only (check-is-admin)
-  (ok (asserts! (default-to false (map-get? admins tx-sender)) err-unauthorized)))
+  (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
 
 (define-public (set-launched (launched bool))
   (begin
