@@ -63,8 +63,16 @@ export function setTokenUri(newTokenUri: string, userAddress: string) {
   );
 }
 
+export function freezeMetadata(userAddress: string) {
+  return Tx.contractCall("ryder-nft", "freeze-metadata", [], userAddress);
+}
+
 export function setAdmin(newAdmin: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-admin", [newAdmin], userAddress);
+}
+
+export function setMinter(newMinter: string, userAddress: string) {
+  return Tx.contractCall("ryder-nft", "set-minter", [newMinter], userAddress);
 }
 
 export function getTierByTokenId(
@@ -80,12 +88,7 @@ export function getTierByTokenId(
   );
 }
 
-
-export function getTierId(
-  chain: Chain,
-  id: number,
-  userAddress: string
-) {
+export function getTierId(chain: Chain, id: number, userAddress: string) {
   return chain.callReadOnlyFn(
     "ryder-nft",
     "token-id-to-tier-id",
@@ -94,12 +97,7 @@ export function getTierId(
   );
 }
 
-
-export function getTier(
-  chain: Chain,
-  tierId: number,
-  userAddress: string
-) {
+export function getTier(chain: Chain, tierId: number, userAddress: string) {
   return chain.callReadOnlyFn(
     "ryder-nft",
     "get-tier",
@@ -107,7 +105,6 @@ export function getTier(
     userAddress
   );
 }
-
 
 export function getDicksonParameter(chain: Chain, userAddress: string) {
   return chain.callReadOnlyFn(
