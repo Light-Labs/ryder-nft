@@ -35,7 +35,7 @@
 (define-constant err-fatale (err u999))
 
 ;; Variables
-(define-data-var token-uri (string-ascii 80) "ipfs://ipfs/Qm../{id}.json")
+(define-data-var token-uri (string-ascii 256) "ipfs://ipfs/Qm../{id}.json")
 (define-data-var token-id-nonce uint u1)
 (define-data-var mint-limit uint u2000)
 (define-data-var metadata-fluid bool true)
@@ -122,7 +122,7 @@
 (define-read-only (check-is-admin)
   (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
 
-(define-public (set-token-uri (new-uri (string-ascii 80)))
+(define-public (set-token-uri (new-uri (string-ascii 256)))
   (begin
     (try! (check-is-admin))
     (asserts! (var-get metadata-fluid) err-unauthorized)
