@@ -69,7 +69,7 @@ export function dickson5003Permut(
 
 export function enabledPublicMint(chain: Chain, deployer: Account) {
   let block = chain.mineBlock([
-    setMinter(`'${deployer.address}.ryder-mint`, deployer.address),
+    setMinter(`'${deployer.address}.ryder-mint`, true, deployer.address),
     setLaunched(true, deployer.address),
     setPublicMint(true, deployer.address),
   ]);

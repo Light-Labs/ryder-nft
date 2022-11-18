@@ -70,7 +70,7 @@ Clarinet.test({
         deployer.address
       ),
     ]);
-    block.receipts[0].result.expectErr().expectUint(507);
+    block.receipts[0].result.expectErr().expectUint(507); // err-max-mint-reached
     block.receipts[1].result.expectOk().expectBool(true);
 
     let receipt = chain.callReadOnlyFn(

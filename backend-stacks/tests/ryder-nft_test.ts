@@ -164,7 +164,7 @@ Clarinet.test({
     enabledPublicMint(chain, deployer);
 
     let block = chain.mineBlock([
-      Tx.contractCall("ryder-nft", "mint", [], wallet_1.address),
+      Tx.contractCall("ryder-nft", "mint", [types.principal(wallet_1.address)], wallet_1.address),
     ]);
     block.receipts[0].result.expectErr().expectUint(403);
   },

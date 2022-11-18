@@ -15,7 +15,7 @@ Clarinet.test({
 
     // try to mint before launch
     let block = chain.mineBlock([
-      setMinter(`'${deployer.address}.ryder-mint`, deployer.address),
+      setMinter(`'${deployer.address}.ryder-mint`, true, deployer.address),
       claim(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk();
@@ -39,7 +39,7 @@ Clarinet.test({
     let block = chain.mineBlock([
       setAllowListedMany([wallet_1.address], deployer.address),
       setLaunched(true, deployer.address),
-      setMinter(`'${deployer.address}.ryder-mint`, deployer.address),
+      setMinter(`'${deployer.address}.ryder-mint`, true, deployer.address),
       claim(wallet_1.address),
       claim(wallet_1.address),
       claim(wallet_1.address),
@@ -68,7 +68,7 @@ Clarinet.test({
 
     // try to mint before launch
     let block = chain.mineBlock([
-      setMinter(`'${deployer.address}.ryder-mint`, deployer.address),
+      setMinter(`'${deployer.address}.ryder-mint`, true, deployer.address),
       claim(wallet_2.address),
     ]);
     block.receipts[0].result.expectOk();

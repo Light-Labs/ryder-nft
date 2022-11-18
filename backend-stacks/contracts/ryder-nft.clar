@@ -38,9 +38,9 @@
 (define-data-var token-uri (string-ascii 80) "ipfs://ipfs/Qm../{id}.json")
 (define-data-var token-id-nonce uint u1)
 (define-data-var mint-limit uint u2000)
-(define-data-var minter principal tx-sender)
 (define-data-var metadata-fluid bool true)
 
+(define-map minters principal bool)
 (define-map token-count principal uint)
 
 (define-map admins principal bool)
@@ -48,14 +48,15 @@
 ;; Additional admins:
 ;; (map-set admins ... true)
 
-(define-public (mint)
-  (let ((sender-balance (get-balance tx-sender))
+
+(define-public (mint (recipient principal))
+  (let ((sender-balance (get-balance recipient))
         (token-id (var-get token-id-nonce)))
-    (asserts! (is-eq contract-caller (var-get minter)) err-unauthorized)
-    (asserts! (< token-id (var-get mint-limit)) err-already-done)
-    (map-set token-count tx-sender (+ sender-balance u1))
+    (asserts! (default-to false (map-get? minters contract-caller)) err-unauthorized)
+    (asserts! (<= token-id (var-get mint-limit)) err-already-done)
+    (map-set token-count recipient (+ sender-balance u1))
     (var-set token-id-nonce (+ token-id u1))
-    (nft-mint? ryder token-id tx-sender)))
+    (nft-mint? ryder token-id recipient)))
 
 (define-public (burn (id uint))
   (begin
@@ -119,7 +120,7 @@
 
 ;; admin function
 (define-read-only (check-is-admin)
-  (ok (asserts! (default-to false (map-get? admins tx-sender)) err-unauthorized)))
+  (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
 
 (define-public (set-token-uri (new-uri (string-ascii 80)))
   (begin
@@ -135,11 +136,11 @@
       (var-set metadata-fluid false))))
 
 
-(define-public (set-minter (new-minter principal))
+(define-public (set-minter (new-minter principal) (enabled bool))
   (begin
     (try! (check-is-admin))
     (ok 
-      (var-set minter new-minter))))
+      (map-set minters new-minter enabled))))
 
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
