@@ -4,4 +4,4 @@
 ))
 
 (define-public (set-allow-list)
-  (contract-call? .ryder-nft set-allow-listed-many list-1))
+  (contract-call? .ryder-mint set-allow-listed-many list-1))

@@ -77,10 +77,18 @@ Clarinet.test({
     let block = chain.mineBlock([shufflePrepare(deployer.address)]);
     block.receipts[0].result.expectOk().expectBool(true);
 
+    let receipt = chain.callReadOnlyFn(
+      "ryder-nft",
+      "get-shuffle-height",
+      [],
+      wallet_1.address
+    );
+    receipt.result.expectSome().expectUint(3);
+
     block = chain.mineBlock([shuffleIds(wallet_1.address)]);
     block.receipts[0].result.expectOk().expectBool(true);
 
-    let receipt = getDicksonParameter(chain, deployer.address);
+    receipt = getDicksonParameter(chain, deployer.address);
     receipt.result.expectUint(397);
 
     receipt = getTierId(chain, 1, deployer.address);
@@ -107,7 +115,7 @@ Clarinet.test({
     };
     for (let i = 0; i < MINT_LIMIT; ++i) {
       const tier = getTier(chain, i, deployer.address).result;
-      tierIds[tier][i] = tier
+      tierIds[tier][i] = tier;
     }
     assertEquals(Object.keys(tierIds.u1).length, 103);
     assertEquals(Object.keys(tierIds.u2).length, 4265);
@@ -116,6 +124,5 @@ Clarinet.test({
     assertEquals(Object.keys(tierIds.u5).length, 20);
     assertEquals(Object.keys(tierIds.u6).length, 10);
     assertEquals(Object.keys(tierIds.u7).length, 5);
-
   },
 });
