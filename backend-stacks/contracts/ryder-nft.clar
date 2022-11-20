@@ -35,12 +35,12 @@
 (define-constant err-fatale (err u999))
 
 ;; Variables
-(define-data-var token-uri (string-ascii 80) "ipfs://ipfs/Qm../{id}.json")
+(define-data-var token-uri (string-ascii 256) "ipfs://ipfs/Qm../{id}.json")
 (define-data-var token-id-nonce uint u1)
 (define-data-var mint-limit uint u2000)
-(define-data-var minter principal tx-sender)
 (define-data-var metadata-fluid bool true)
 
+(define-map minters principal bool)
 (define-map token-count principal uint)
 
 (define-map admins principal bool)
@@ -48,14 +48,15 @@
 ;; Additional admins:
 ;; (map-set admins ... true)
 
-(define-public (mint)
-  (let ((sender-balance (get-balance tx-sender))
+
+(define-public (mint (recipient principal))
+  (let ((sender-balance (get-balance recipient))
         (token-id (var-get token-id-nonce)))
-    (asserts! (is-eq contract-caller (var-get minter)) err-unauthorized)
-    (asserts! (< token-id (var-get mint-limit)) err-already-done)
-    (map-set token-count tx-sender (+ sender-balance u1))
+    (asserts! (default-to false (map-get? minters contract-caller)) err-unauthorized)
+    (asserts! (<= token-id (var-get mint-limit)) err-already-done)
+    (map-set token-count recipient (+ sender-balance u1))
     (var-set token-id-nonce (+ token-id u1))
-    (nft-mint? ryder token-id tx-sender)))
+    (nft-mint? ryder token-id recipient)))
 
 (define-public (burn (id uint))
   (begin
@@ -81,9 +82,7 @@
 (define-private (transfer-iter-fn 
     (details {id: uint, sender: principal, recipient: principal}) 
     (result (response bool uint)))
-  (if (is-ok result)
-    (transfer (get id details) (get sender details) (get recipient details))
-    (ok false)))
+  (transfer (get id details) (get sender details) (get recipient details)))
 
 (define-public (transfer-many (recipients (list 200 {id: uint, sender: principal, recipient: principal})))
   (fold transfer-iter-fn recipients (ok true)))
@@ -91,10 +90,8 @@
 (define-private (transfer-memo-iter-fn 
     (details {id: uint, sender: principal, recipient: principal, memo: (buff 33)})
     (result (response bool uint)))
-  (if (is-ok result)
-    (transfer-memo (get id details) (get sender details) (get recipient details)
-    (get memo details))
-    (ok false)))
+  (transfer-memo (get id details) (get sender details) (get recipient details)
+      (get memo details)))
 
 (define-public (transfer-memo-many (recipients (list 200 {id: uint, sender: principal,
                                       recipient: principal, memo: (buff 33)})))
@@ -102,9 +99,10 @@
 
 (define-private (transfer-internal (id uint) (sender principal) (recipient principal))
   (begin
+    (try! (nft-transfer? ryder id sender recipient))
     (map-set token-count sender (- (get-balance sender) u1))
     (map-set token-count recipient (+ (get-balance recipient) u1))
-    (nft-transfer? ryder id sender recipient)))
+    (ok true)))
 
 ;; guard functions
 (define-read-only (is-owner (id uint) (account principal))
@@ -119,9 +117,9 @@
 
 ;; admin function
 (define-read-only (check-is-admin)
-  (ok (asserts! (default-to false (map-get? admins tx-sender)) err-unauthorized)))
+  (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
 
-(define-public (set-token-uri (new-uri (string-ascii 80)))
+(define-public (set-token-uri (new-uri (string-ascii 256)))
   (begin
     (try! (check-is-admin))
     (asserts! (var-get metadata-fluid) err-unauthorized)
@@ -135,11 +133,11 @@
       (var-set metadata-fluid false))))
 
 
-(define-public (set-minter (new-minter principal))
+(define-public (set-minter (new-minter principal) (enabled bool))
   (begin
     (try! (check-is-admin))
     (ok 
-      (var-set minter new-minter))))
+      (map-set minters new-minter enabled))))
 
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
@@ -151,6 +149,7 @@
   (begin
     (try! (check-is-admin))
     (asserts! (<= limit MAX-TOKENS) err-max-mint-reached)
+    (asserts! (>= limit (var-get token-id-nonce)) err-max-mint-reached)
     (ok (var-set mint-limit limit))))
 
 (define-public (shuffle-prepare)

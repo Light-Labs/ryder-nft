@@ -15,6 +15,10 @@ contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
 path = 'contracts/external/commission-free.clar'
 clarity_version = 1
 
+[contracts.ryder-mint-free]
+path = 'contracts/external/ryder-mint-free.clar'
+clarity_version = 1
+
 [contracts.ryder-mint]
 path = 'contracts/ryder-mint.clar'
 clarity_version = 1

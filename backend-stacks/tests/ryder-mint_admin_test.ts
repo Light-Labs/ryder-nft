@@ -36,16 +36,19 @@ Clarinet.test({
     let block = chain.mineBlock([setMintLimit(2, deployer.address)]);
     block.receipts[0].result.expectOk().expectBool(true);
 
-    block = chain.mineBlock([claim(wallet_1.address)]);
+    block = chain.mineBlock([claim(wallet_1.address), claim(wallet_1.address)]);
     block.receipts[0].result.expectOk().expectBool(true);
-    expectNumberOfNfts(chain, 1, wallet_1.address);
+    block.receipts[0].result.expectOk().expectBool(true);
+    expectNumberOfNfts(chain, 2, wallet_1.address);
 
     block = chain.mineBlock([claim(wallet_1.address)]);
     block.receipts[0].result.expectErr().expectUint(505); // err-already-done
-    expectNumberOfNfts(chain, 1, wallet_1.address);
+    expectNumberOfNfts(chain, 2, wallet_1.address);
+
+    block = chain.mineBlock([setMintLimit(1, deployer.address)]);
+    block.receipts[0].result.expectErr().expectUint(507); // invalid mint limit
   },
 });
-
 
 Clarinet.test({
   name: "Ensure that admin can change payment recipient",
@@ -95,7 +98,6 @@ Clarinet.test({
   },
 });
 
-
 Clarinet.test({
   name: "Ensure that admin can add and remove new admin",
   async fn(chain: Chain, accounts: Map<string, Account>) {
@@ -143,18 +145,68 @@ Clarinet.test({
     const non_admin = accounts.get("wallet_2")!.address;
 
     let block = chain.mineBlock([
-      Tx.contractCall("ryder-nft", "set-token-uri", [types.ascii("abc")], non_admin),
-      Tx.contractCall("ryder-nft", "set-admin", [types.principal(non_admin), types.bool(true)], non_admin),
-      Tx.contractCall("ryder-mint", "set-admin", [types.principal(non_admin), types.bool(true)], non_admin),
-      Tx.contractCall("ryder-mint", "set-launched", [types.bool(true)], non_admin),
-      Tx.contractCall("ryder-mint", "set-public-mint", [types.bool(true)], non_admin),
-      Tx.contractCall("ryder-mint", "set-price-in-ustx", [types.uint(3)], non_admin),
-      Tx.contractCall("ryder-mint", "set-allow-listed-many", [types.list([types.principal(non_admin)])], non_admin),
-      Tx.contractCall("ryder-nft", "set-mint-limit", [types.uint(3)], non_admin),
-      Tx.contractCall("ryder-nft", "set-minter", [types.principal(non_admin)], non_admin),
-      Tx.contractCall("ryder-mint", "set-payment-recipient", [types.principal(non_admin)], non_admin),
+      Tx.contractCall(
+        "ryder-nft",
+        "set-token-uri",
+        [types.ascii("abc")],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-nft",
+        "set-admin",
+        [types.principal(non_admin), types.bool(true)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-admin",
+        [types.principal(non_admin), types.bool(true)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-launched",
+        [types.bool(true)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-public-mint",
+        [types.bool(true)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-price-in-ustx",
+        [types.uint(3)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-allow-listed-many",
+        [types.list([types.principal(non_admin)])],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-nft",
+        "set-mint-limit",
+        [types.uint(3)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-nft",
+        "set-minter",
+        [types.principal(non_admin), types.bool(true)],
+        non_admin
+      ),
+      Tx.contractCall(
+        "ryder-mint",
+        "set-payment-recipient",
+        [types.principal(non_admin)],
+        non_admin
+      ),
       Tx.contractCall("ryder-nft", "shuffle-prepare", [], non_admin),
     ]);
-    block.receipts.map(receipt => receipt.result.expectErr().expectUint(403));
+    block.receipts.map((receipt) => receipt.result.expectErr().expectUint(403));
   },
 });

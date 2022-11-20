@@ -1,7 +1,6 @@
 (define-constant MAX-MINT-PER-PRINCIPAL u2)
 
 (define-constant err-unauthorized (err u403))
-(define-constant err-already-done (err u505))
 (define-constant err-not-launched (err u506))
 (define-constant err-max-mint-reached (err u507))
 
@@ -26,7 +25,7 @@
     (asserts! (or (< sender-mint-count MAX-MINT-PER-PRINCIPAL) public-mint-started) err-max-mint-reached)
     (map-set mint-count tx-sender (+ sender-mint-count u1))
     (try! (stx-transfer? (var-get price-in-ustx) tx-sender (var-get payment-recipient)))
-    (contract-call? .ryder-nft mint)))
+    (contract-call? .ryder-nft mint tx-sender)))
 
 (define-public (claim)
   (mint))
@@ -70,7 +69,7 @@
 
 ;; admin functions
 (define-read-only (check-is-admin)
-  (ok (asserts! (default-to false (map-get? admins tx-sender)) err-unauthorized)))
+  (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
 
 (define-public (set-launched (launched bool))
   (begin

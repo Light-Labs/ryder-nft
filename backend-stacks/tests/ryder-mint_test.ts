@@ -72,7 +72,7 @@ Clarinet.test({
     block = chain.mineBlock([
       setLaunched(true, deployer.address),
       setPublicMint(true, deployer.address),
-      setMinter(`'${deployer.address}.ryder-mint`, deployer.address),
+      setMinter(`'${deployer.address}.ryder-mint`, true, deployer.address),
       claim(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
@@ -89,16 +89,76 @@ Clarinet.test({
     block.receipts[1].result.expectErr().expectUint(506); // err-not-launched
 
     let receipt = chain.callReadOnlyFn(
-      "ryder-mint", "get-mint-launched",
-      [], wallet_1.address
-    )
+      "ryder-mint",
+      "get-mint-launched",
+      [],
+      wallet_1.address
+    );
     receipt.result.expectBool(false);
 
     receipt = chain.callReadOnlyFn(
-      "ryder-mint", "get-public-mint",
-      [], wallet_1.address
-    )
+      "ryder-mint",
+      "get-public-mint",
+      [],
+      wallet_1.address
+    );
     receipt.result.expectBool(true);
+  },
+});
+
+Clarinet.test({
+  name: "Ensure that admin can set more than one minter",
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const deployer = accounts.get("deployer")!;
+    const wallet_1 = accounts.get("wallet_1")!;
+    const wallet_2 = accounts.get("wallet_2")!;
+    enabledPublicMint(chain, deployer);
+
+    let block = chain.mineBlock([
+      Tx.contractCall(
+        "ryder-nft",
+        "set-minter",
+        [`'${deployer.address}.ryder-mint-free`, types.bool(true)],
+        deployer.address
+      ),
+    ]);
+    block.receipts[0].result.expectOk().expectBool(true);
+
+    block = chain.mineBlock([
+      claim(wallet_1.address),
+      Tx.contractCall(
+        "ryder-mint-free",
+        "mint-free",
+        [types.principal(wallet_1.address)],
+        wallet_2.address
+      ),
+    ]);
+    block.receipts[0].result.expectOk().expectBool(true);
+    block.receipts[0].events.expectSTXTransferEvent(
+      MINT_PRICE,
+      wallet_1.address,
+      deployer.address
+    );
+    block.receipts[0].events.expectNonFungibleTokenMintEvent(
+      types.uint(1),
+      wallet_1.address,
+      `${deployer.address}.ryder-nft`,
+      "ryder"
+    );
+    block.receipts[1].events.expectNonFungibleTokenMintEvent(
+      types.uint(2),
+      wallet_1.address,
+      `${deployer.address}.ryder-nft`,
+      "ryder"
+    );
+
+    let receipt = chain.callReadOnlyFn(
+      "ryder-nft",
+      "get-balance",
+      [types.principal(wallet_1.address)],
+      wallet_1.address
+    );
+    receipt.result.expectUint(2);
   },
 });
 
