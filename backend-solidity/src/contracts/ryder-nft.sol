@@ -40,13 +40,24 @@ contract RyderNFT is NFToken, ERC721Metadata {
     }
 
     constructor(address[] memory deployAdmins) {
+        supportedInterfaces[0x01ffc9a7] = true; // ERC165
         supportedInterfaces[0x5b5e139f] = true; // ERC721Metadata
         admins[msg.sender] = true;
         for (uint256 i = 0; i < deployAdmins.length; ++i)
             admins[deployAdmins[i]] = true;
     }
 
-    // ERC721Metadata
+    // ERC165
+    function supportsInterface(bytes4 _interfaceID)
+        external
+        view
+        override
+        returns (bool)
+    {
+        return supportedInterfaces[_interfaceID];
+    }
+
+    // ERC721 metadata
 
     function name() external pure returns (string memory _name) {
         _name = NFT_NAME;
@@ -99,7 +110,6 @@ contract RyderNFT is NFToken, ERC721Metadata {
     }
 
     function tier(uint256 tierId) public pure returns (uint256) {
-        if (tierId == 0) return 0;
         if (tierId >= TIER_LOWER_BOUND_T2) return 1;
         if (tierId >= TIER_LOWER_BOUND_T3) return 2;
         if (tierId >= TIER_LOWER_BOUND_T4) return 3;
@@ -124,6 +134,7 @@ contract RyderNFT is NFToken, ERC721Metadata {
     // Admin functions
 
     function setDicksonParameter(uint256 _dicksonParameter) external adminOnly {
+        require(!dicksonParameterSet, ERR_ALREADY_DONE);
         dicksonParameter = _dicksonParameter;
         dicksonParameterSet = true;
     }
