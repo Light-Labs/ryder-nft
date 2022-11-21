@@ -6,6 +6,7 @@ import {
 } from "./clients/ryder-mint-client.ts";
 
 import { transfer, setMinter } from "./clients/ryder-nft-client.ts";
+import * as Errors from "./clients/error-codes.ts";
 
 Clarinet.test({
   name: "Ensure that allow-listed user can mint before public mint",
@@ -19,7 +20,7 @@ Clarinet.test({
       claim(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk();
-    block.receipts[1].result.expectErr().expectUint(506); // not launched
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_NOT_LAUNCHED);
 
     block = chain.mineBlock([
       setLaunched(true, deployer.address),
@@ -49,14 +50,18 @@ Clarinet.test({
     block.receipts[2].result.expectOk();
     block.receipts[3].result.expectOk().expectBool(true); // first mint
     block.receipts[4].result.expectOk().expectBool(true); // second mint
-    block.receipts[5].result.expectErr().expectUint(507); // err-max-mint-reached
+    block.receipts[5].result
+      .expectErr()
+      .expectUint(Errors.ERR_MAX_LIMIT_REACHED);
 
     block = chain.mineBlock([
       transfer(1, wallet_1.address, deployer.address, wallet_1.address),
       claim(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
-    block.receipts[1].result.expectErr().expectUint(507); // err-max-mint-reached
+    block.receipts[1].result
+      .expectErr()
+      .expectUint(Errors.ERR_MAX_LIMIT_REACHED);
   },
 });
 
@@ -72,13 +77,13 @@ Clarinet.test({
       claim(wallet_2.address),
     ]);
     block.receipts[0].result.expectOk();
-    block.receipts[1].result.expectErr().expectUint(506); // not launched
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_NOT_LAUNCHED);
 
     block = chain.mineBlock([
       setLaunched(true, deployer.address),
       claim(wallet_2.address),
     ]);
-    block.receipts[1].result.expectErr().expectUint(403); // err-unauthorized
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
   },
 });
 
@@ -109,9 +114,11 @@ Clarinet.test({
       ),
       claim(deployer.address),
     ]);
-    block.receipts[0].result.expectErr().expectUint(403); // err-unauthorized
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
     block.receipts[1].result.expectOk();
     block.receipts[2].result.expectOk();
-    block.receipts[3].result.expectErr().expectUint(2); // sender and recipient the same
+    block.receipts[3].result
+      .expectErr()
+      .expectUint(Errors.ERR_SAME_SENDER_RECIPIENT);
   },
 });

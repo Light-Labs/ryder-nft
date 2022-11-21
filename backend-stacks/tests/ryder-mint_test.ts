@@ -9,6 +9,7 @@ import {
 } from "./clients/ryder-mint-client.ts";
 
 import { setMinter } from "./clients/ryder-nft-client.ts";
+import * as Errors from "./clients/error-codes.ts";
 
 const MINT_PRICE = 1000_000_000;
 
@@ -66,7 +67,7 @@ Clarinet.test({
     const wallet_1 = accounts.get("wallet_1")!;
 
     let block = chain.mineBlock([claim(wallet_1.address)]);
-    block.receipts[0].result.expectErr().expectUint(506); // err-not-launched
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_NOT_LAUNCHED);
 
     // un-pause mint
     block = chain.mineBlock([
@@ -86,7 +87,7 @@ Clarinet.test({
       claim(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
-    block.receipts[1].result.expectErr().expectUint(506); // err-not-launched
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_NOT_LAUNCHED);
 
     let receipt = chain.callReadOnlyFn(
       "ryder-mint",

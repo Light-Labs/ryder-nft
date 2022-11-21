@@ -12,6 +12,7 @@ import {
   enabledPublicMint,
   MINT_LIMIT,
 } from "./clients/ryder-mint-client.ts";
+import * as Errors from "./clients/error-codes.ts";
 
 Clarinet.test({
   name: "Ensure that admin can shuffle ids",
@@ -29,7 +30,7 @@ Clarinet.test({
       shuffleIds(wallet_1.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
-    block.receipts[1].result.expectErr().expectUint(999);
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_FATALE);
 
     block = chain.mineBlock([shuffleIds(wallet_1.address)]);
     block.receipts[0].result.expectOk().expectBool(true);
@@ -58,10 +59,10 @@ Clarinet.test({
       shufflePrepare(deployer.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
-    block.receipts[1].result.expectErr().expectUint(505);
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_ALREADY_DONE);
 
     block = chain.mineBlock([shufflePrepare(deployer.address)]);
-    block.receipts[0].result.expectErr().expectUint(505);
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_ALREADY_DONE);
   },
 });
 

@@ -7,6 +7,7 @@ import {
   setLaunched,
 } from "./clients/ryder-nft-client.ts";
 import { claim, enabledPublicMint } from "./clients/ryder-mint-client.ts";
+import * as Errors from "./clients/error-codes.ts";
 
 Clarinet.test({
   name: "Ensure that NFT can be listed and unlisted",
@@ -43,8 +44,8 @@ Clarinet.test({
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
-    block.receipts[2].result.expectErr().expectUint(403);
-    block.receipts[3].result.expectErr().expectUint(403);
+    block.receipts[2].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
+    block.receipts[3].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
   },
 });
 
@@ -65,7 +66,7 @@ Clarinet.test({
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
-    block.receipts[2].result.expectErr().expectUint(502); // err-listing
+    block.receipts[2].result.expectErr().expectUint(Errors.ERR_LISTING);
 
     let receipt = chain.callReadOnlyFn(
       "ryder-nft",
@@ -130,6 +131,6 @@ Clarinet.test({
     block.receipts[0].result.expectOk().expectBool(true);
     block.receipts[1].result.expectOk().expectBool(true);
     block.receipts[2].result.expectOk().expectBool(true);
-    block.receipts[3].result.expectErr().expectUint(502); // err-listing
+    block.receipts[3].result.expectErr().expectUint(Errors.ERR_LISTING);
   },
 });

@@ -1,6 +1,7 @@
 import { Clarinet, Tx, Chain, Account, types, assertEquals } from "./deps.ts";
 import { transfer, burn } from "./clients/ryder-nft-client.ts";
 import { claim, enabledPublicMint } from "./clients/ryder-mint-client.ts";
+import * as Errors from "./clients/error-codes.ts";
 
 const MAX_TOKENS = 5003;
 Clarinet.test({
@@ -191,10 +192,10 @@ Clarinet.test({
     block.receipts[2].result.expectOk().expectBool(true);
     block.receipts[3].result.expectOk().expectBool(true);
     block.receipts[4].result.expectOk().expectBool(true);
-    block.receipts[5].result.expectErr().expectUint(3);
-    block.receipts[6].result.expectErr().expectUint(3);
-    block.receipts[7].result.expectErr().expectUint(3);
-    block.receipts[8].result.expectErr().expectUint(3);
+    block.receipts[5].result.expectErr().expectUint(Errors.ERR_NO_SUCH_ASSET_);
+    block.receipts[6].result.expectErr().expectUint(Errors.ERR_NO_SUCH_ASSET_);
+    block.receipts[7].result.expectErr().expectUint(Errors.ERR_NO_SUCH_ASSET_);
+    block.receipts[8].result.expectErr().expectUint(Errors.ERR_NO_SUCH_ASSET_);
 
     block.receipts[2].events.expectNonFungibleTokenTransferEvent(
       types.uint(1),
@@ -232,7 +233,7 @@ Clarinet.test({
       transfer(1, wallet_1.address, deployer.address, wallet_2.address),
     ]);
     block.receipts[0].result.expectOk().expectBool(true);
-    block.receipts[1].result.expectErr().expectUint(403);
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
   },
 });
 
@@ -251,7 +252,7 @@ Clarinet.test({
         wallet_1.address
       ),
     ]);
-    block.receipts[0].result.expectErr().expectUint(403);
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
   },
 });
 
