@@ -188,19 +188,4 @@ describe('nf-token', function() {
   //   // console.log(log);
   //   // console.log(sendsToSelfOnConstruct); No Receive event, 2x Transfer
   // });
-
-  it("return the correct tier id", async function () {
-    await nfToken.connect(owner).setDicksonParameter(100);
-    expect(await nfToken.tokenIdToTierId(1)).to.equal(2201);
-    expect(await nfToken.tokenIdToTierId(2)).to.equal(4932);
-    expect(await nfToken.tokenIdToTierId(3)).to.equal(4040);
-    expect(await nfToken.tokenIdToTierId(5003)).to.equal(100);
-  });
-
-  /*
-  it("throws if dickson parameter is set twice", async function () {
-    await nfToken.connect(owner).setDicksonParameter(100);
-    await expect(nfToken.connect(owner).setDicksonParameter(200)).to.be.revertedWithCustomError;
-  });
-  */
 });
