@@ -10,7 +10,6 @@ contract RyderNFT is NFToken, ERC721Metadata {
     string public constant NFT_SYMBOL = "RYD";
 
     uint256 constant MAX_TOKENS = 5003;
-    uint256 constant MAX_MINT_PER_PRINCIPAL = 2;
 
     uint256 constant TIER_LOWER_BOUND_T2 = 103;
     uint256 constant TIER_LOWER_BOUND_T3 = 4368;
@@ -45,16 +44,6 @@ contract RyderNFT is NFToken, ERC721Metadata {
         admins[msg.sender] = true;
         for (uint256 i = 0; i < deployAdmins.length; ++i)
             admins[deployAdmins[i]] = true;
-    }
-
-    // ERC165
-    function supportsInterface(bytes4 _interfaceID)
-        external
-        view
-        override
-        returns (bool)
-    {
-        return supportedInterfaces[_interfaceID];
     }
 
     // ERC721 metadata
