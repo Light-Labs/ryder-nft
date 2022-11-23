@@ -18,9 +18,11 @@ contract RyderNFT is NFToken, ERC721Metadata {
     uint256 constant TIER_LOWER_BOUND_T6 = 4988;
     uint256 constant TIER_LOWER_BOUND_T7 = 4998;
 
+    string public constant ERR_ZERO_ADDRESS = "003001";
     string public constant ERR_UNAUTHORIZED = "403";
     string public constant ERR_ALREADY_DONE = "505";
     string public constant ERR_MAX_MINT_REACHED = "507";
+    string public constant ERR_NOT_ALLOWED = "508";
 
     bool private dicksonParameterSet = false;
     uint256 private dicksonParameter = 0;
@@ -46,38 +48,19 @@ contract RyderNFT is NFToken, ERC721Metadata {
             admins[deployAdmins[i]] = true;
     }
 
-    // ERC721 metadata
-
-    function name() external pure returns (string memory _name) {
-        _name = NFT_NAME;
-    }
-
-    function symbol() external pure returns (string memory _symbol) {
-        _symbol = NFT_SYMBOL;
-    }
-
-    function tokenURI(uint256 tokenId)
-        external
-        view
-        validNFToken(tokenId)
-        returns (string memory)
-    {
-        return
-            string.concat(
-                nftTokenUriBase,
-                uint256ToString(tokenId),
-                nftTokenUriSuffix
-            );
-    }
-
     function mint(address recipient) external {
         require(minters[msg.sender], ERR_UNAUTHORIZED);
         require(tokenIdNonce > mintLimit, ERR_ALREADY_DONE);
+        require(recipient != address(0x0), ERR_ZERO_ADDRESS);
         _mint(recipient, tokenIdNonce);
         --tokenIdNonce;
     }
 
-    function burn(uint256 tokenId) external canTransfer(tokenId) {
+    function burn(uint256 tokenId)
+        external
+        validNFToken(tokenId)
+        canTransfer(tokenId)
+    {
         _burn(tokenId);
     }
 
@@ -108,9 +91,6 @@ contract RyderNFT is NFToken, ERC721Metadata {
         return 7;
     }
 
-    /**
-     *
-     */
     function tierById(uint256 tokenId)
         external
         view
@@ -147,12 +127,41 @@ contract RyderNFT is NFToken, ERC721Metadata {
     }
 
     function setAdmin(address newAdmin, bool enabled) external adminOnly {
+        require(newAdmin != msg.sender, ERR_NOT_ALLOWED);
         admins[newAdmin] = enabled;
+    }
+
+    function isAdmin(address who) external view returns (bool) {
+        return admins[who];
     }
 
     function setMintLimit(uint256 newLimit) external adminOnly {
         require(newLimit < tokenIdNonce, ERR_MAX_MINT_REACHED);
         mintLimit = newLimit;
+    }
+
+    // ERC721 metadata
+
+    function name() external pure returns (string memory _name) {
+        _name = NFT_NAME;
+    }
+
+    function symbol() external pure returns (string memory _symbol) {
+        _symbol = NFT_SYMBOL;
+    }
+
+    function tokenURI(uint256 tokenId)
+        external
+        view
+        validNFToken(tokenId)
+        returns (string memory)
+    {
+        return
+            string.concat(
+                nftTokenUriBase,
+                uint256ToString(tokenId),
+                nftTokenUriSuffix
+            );
     }
 
     // Helpers
