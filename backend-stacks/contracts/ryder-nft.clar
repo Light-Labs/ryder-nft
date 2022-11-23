@@ -145,7 +145,7 @@
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
     (try! (check-is-admin))
-    (asserts! (not (is-eq tx-sender)) err-not-allowed)
+    (asserts! (not (is-eq tx-sender new-admin)) err-not-allowed)
     (ok 
       (map-set admins new-admin value))))
 
