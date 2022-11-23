@@ -32,6 +32,7 @@
 (define-constant err-wrong-commission (err u503))
 (define-constant err-already-done (err u505))
 (define-constant err-max-mint-reached (err u507))
+(define-constant err-not-allowed (err u508))
 (define-constant err-fatale (err u999))
 
 ;; Variables
@@ -142,6 +143,7 @@
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
     (try! (check-is-admin))
+    (asserts! (not (is-eq tx-sender new-admin)) err-not-allowed)
     (ok 
       (map-set admins new-admin value))))
 
