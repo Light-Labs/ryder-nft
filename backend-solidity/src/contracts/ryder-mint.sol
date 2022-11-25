@@ -4,14 +4,14 @@ pragma solidity ^0.8.9;
 import "./ryder-nft.sol";
 
 contract RyderMint {
-    uint256 constant MAX_MINT_PER_PRINCIPAL = 2;
+    uint256 constant MAX_MINT_PER_ADDRESS = 2;
 
     string public constant ERR_UNAUTHORIZED = "403";
-    string public constant ERR_ALREADY_DONE = "505";
     string public constant ERR_NOT_LAUNCHED = "506";
     string public constant ERR_MAX_MINT_REACHED = "507";
     string public constant ERR_PAYMENT_FAILED = "508";
     string public constant ERR_INVALID_PAYMENT = "509";
+    string public constant ERR_NOT_ALLOWED = "510";
 
     bool mintLaunched = false;
     uint256 private mintPrice = 1 ether;
@@ -50,7 +50,7 @@ contract RyderMint {
         require(amount <= 20, ERR_UNAUTHORIZED);
         require(
             publicMint ||
-                mintCount[msg.sender] + amount <= MAX_MINT_PER_PRINCIPAL,
+                mintCount[msg.sender] + amount <= MAX_MINT_PER_ADDRESS,
             ERR_MAX_MINT_REACHED
         );
         require(msg.value >= mintPrice * amount, ERR_INVALID_PAYMENT);
@@ -112,6 +112,7 @@ contract RyderMint {
     }
 
     function setAdmin(address newAdmin, bool enabled) external adminOnly {
+        require(newAdmin != msg.sender, ERR_NOT_ALLOWED);
         admins[newAdmin] = enabled;
     }
 }
