@@ -22,6 +22,7 @@ async function fetchTierByNftId(nftId: number) {
   for (let i = 1; i <= MAX_TOKENS; i++) {
     const tier = await fetchTierByNftId(1);
     const metadata = {
+      sip: 16,
       name: "Ryder NFT",
       description: "",
       image: "ipfs://Qm",
