@@ -52,7 +52,7 @@ Clarinet.test({
     block.receipts[4].result.expectOk().expectBool(true); // second mint
     block.receipts[5].result
       .expectErr()
-      .expectUint(Errors.ERR_MAX_LIMIT_REACHED);
+      .expectUint(Errors.ERR_MAX_LIMIT_REACHED); // only two mints allowed
 
     block = chain.mineBlock([
       transfer(1, wallet_1.address, deployer.address, wallet_1.address),

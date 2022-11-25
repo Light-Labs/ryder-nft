@@ -71,8 +71,26 @@ export function setAdmin(newAdmin: string, userAddress: string) {
   return Tx.contractCall("ryder-nft", "set-admin", [newAdmin], userAddress);
 }
 
-export function setMinter(newMinter: string, enabled: boolean, userAddress: string) {
-  return Tx.contractCall("ryder-nft", "set-minter", [newMinter, types.bool(enabled)], userAddress);
+export function setMinter(
+  newMinter: string,
+  enabled: boolean,
+  userAddress: string
+) {
+  return Tx.contractCall(
+    "ryder-nft",
+    "set-minter",
+    [newMinter, types.bool(enabled)],
+    userAddress
+  );
+}
+
+export function setMintLimit(mintLimit: number, userAddress: string) {
+  return Tx.contractCall(
+    "ryder-nft",
+    "set-mint-limit",
+    [types.uint(mintLimit)],
+    userAddress
+  );
 }
 
 export function getTierByTokenId(

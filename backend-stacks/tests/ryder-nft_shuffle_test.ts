@@ -10,7 +10,7 @@ import {
   shufflePrepare,
   dickson5003Permut,
   enabledPublicMint,
-  MINT_LIMIT,
+  MAX_TOKENS,
 } from "./clients/ryder-mint-client.ts";
 import * as Errors from "./clients/error-codes.ts";
 
@@ -114,7 +114,7 @@ Clarinet.test({
       u6: {},
       u7: {},
     };
-    for (let i = 0; i < MINT_LIMIT; ++i) {
+    for (let i = 0; i < MAX_TOKENS; ++i) {
       const tier = getTier(chain, i, deployer.address).result;
       tierIds[tier][i] = tier;
     }

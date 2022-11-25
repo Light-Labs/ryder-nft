@@ -1,10 +1,22 @@
 import { Chain, Tx, types, Account } from "../deps.ts";
 import { setMinter } from "./ryder-nft-client.ts";
 
-export const MINT_LIMIT = 5003;
+export const MAX_TOKENS = 5003;
 
 export function claim(userAddress: string) {
   return Tx.contractCall("ryder-mint", "claim", [], userAddress);
+}
+
+export function claimTwo(userAddress: string) {
+  return Tx.contractCall("ryder-mint", "claim-two", [], userAddress);
+}
+
+export function claimFive(userAddress: string) {
+  return Tx.contractCall("ryder-mint", "claim-five", [], userAddress);
+}
+
+export function claimTwenty(userAddress: string) {
+  return Tx.contractCall("ryder-mint", "claim-twenty", [], userAddress);
 }
 
 export function setLaunched(launched: boolean, userAddress: string) {
@@ -21,15 +33,6 @@ export function setPublicMint(launched: boolean, userAddress: string) {
     "ryder-mint",
     "set-public-mint",
     [types.bool(launched)],
-    userAddress
-  );
-}
-
-export function setMintLimit(mintLimit: number, userAddress: string) {
-  return Tx.contractCall(
-    "ryder-nft",
-    "set-mint-limit",
-    [types.uint(mintLimit)],
     userAddress
   );
 }

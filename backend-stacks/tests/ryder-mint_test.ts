@@ -4,11 +4,14 @@ import {
   enabledPublicMint,
   setPublicMint,
   dickson5003Permut,
-  MINT_LIMIT,
+  MAX_TOKENS,
   claim,
+  claimTwo,
+  claimFive,
+  claimTwenty,
 } from "./clients/ryder-mint-client.ts";
 
-import { setMinter } from "./clients/ryder-nft-client.ts";
+import { setMinter, setMintLimit } from "./clients/ryder-nft-client.ts";
 import * as Errors from "./clients/error-codes.ts";
 
 const MINT_PRICE = 1000_000_000;
@@ -168,7 +171,7 @@ Clarinet.test({
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get("deployer")!;
     const tierIds: any = {};
-    for (let i = 1; i <= MINT_LIMIT; ++i) {
+    for (let i = 1; i <= MAX_TOKENS; ++i) {
       const tierId = dickson5003Permut(chain, i, 0, deployer.address);
       if (tierIds[tierId]) {
         throw new Error("err " + tierId + " " + tierIds[tierId] + " " + i);
@@ -176,6 +179,41 @@ Clarinet.test({
         tierIds[tierId] = i;
       }
     }
-    assertEquals(Object.keys(tierIds).length, MINT_LIMIT);
+    assertEquals(Object.keys(tierIds).length, MAX_TOKENS);
+  },
+});
+
+Clarinet.test({
+  name: "Ensure that user can't mint above mint limit",
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const deployer = accounts.get("deployer")!;
+    const wallet_1 = accounts.get("wallet_1")!;
+    const wallet_2 = accounts.get("wallet_2")!;
+    enabledPublicMint(chain, deployer);
+    const MINT_LIMIT = 28;
+    let block = chain.mineBlock([setMintLimit(MINT_LIMIT, deployer.address)]);
+    block.receipts[0].result.expectOk().expectBool(true);
+
+    block = chain.mineBlock([
+      claimTwenty(wallet_1.address),
+      claimFive(wallet_1.address),
+      claimTwo(wallet_1.address),
+      claimTwo(wallet_1.address), // id 28 is last valid id, id 29 is above mint limit
+      claim(wallet_1.address), // claim id 28.
+    ]);
+
+    block.receipts[0].result.expectOk().expectBool(true);
+    block.receipts[1].result.expectOk().expectBool(true);
+    block.receipts[2].result.expectOk().expectBool(true);
+    block.receipts[3].result.expectErr().expectUint(Errors.ERR_ALREADY_DONE);
+    block.receipts[4].result.expectOk().expectBool(true);
+
+    let receipt = chain.callReadOnlyFn(
+      "ryder-nft",
+      "get-balance",
+      [types.principal(wallet_1.address)],
+      wallet_1.address
+    );
+    receipt.result.expectUint(MINT_LIMIT);
   },
 });

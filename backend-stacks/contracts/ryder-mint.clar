@@ -43,6 +43,29 @@
     (try! (mint))
     (mint)))
 
+(define-public (claim-twenty)
+  (begin
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (try! (mint))
+    (mint)))
+
 ;; read-only functions
 
 (define-read-only (is-allow-listed (who principal))

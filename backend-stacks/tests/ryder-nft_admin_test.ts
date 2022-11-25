@@ -1,5 +1,10 @@
 import { Clarinet, Tx, Chain, Account, types, assertEquals } from "./deps.ts";
-import { setTokenUri, freezeMetadata } from "./clients/ryder-nft-client.ts";
+import {
+  setTokenUri,
+  freezeMetadata,
+  setMintLimit,
+} from "./clients/ryder-nft-client.ts";
+import * as Errors from "./clients/error-codes.ts";
 
 Clarinet.test({
   name: "Ensure that admin can change and freeze metadata",
@@ -20,7 +25,7 @@ Clarinet.test({
       .expectOk()
       .expectSome()
       .expectAscii("ipfs://new-token-uri/{id}.json");
-      
+
     // change token uri again
     block = chain.mineBlock([
       setTokenUri("ipfs://new-token-uri-2/{id}.json", deployer.address),
@@ -35,7 +40,7 @@ Clarinet.test({
     block = chain.mineBlock([
       setTokenUri("ipfs://new-token-uri-2/{id}.json", deployer.address),
     ]);
-    block.receipts[0].result.expectErr().expectUint(403);
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
   },
 });
 
@@ -46,7 +51,7 @@ Clarinet.test({
     let block = chain.mineBlock([
       setTokenUri("ipfs://new-token-uri/{id}.json", wallet_1.address),
     ]);
-    block.receipts[0].result.expectErr().expectUint(403);
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
   },
 });
 
@@ -57,20 +62,12 @@ Clarinet.test({
     const wallet_1 = accounts.get("wallet_1");
     const MINT_LIMIT = 10;
     let block = chain.mineBlock([
-      Tx.contractCall(
-        "ryder-nft",
-        "set-mint-limit",
-        [types.uint(6000)],
-        deployer.address
-      ),
-      Tx.contractCall(
-        "ryder-nft",
-        "set-mint-limit",
-        [types.uint(MINT_LIMIT)],
-        deployer.address
-      ),
+      setMintLimit(6000, deployer.address),
+      setMintLimit(MINT_LIMIT, deployer.address),
     ]);
-    block.receipts[0].result.expectErr().expectUint(507); // err-max-mint-reached
+    block.receipts[0].result
+      .expectErr()
+      .expectUint(Errors.ERR_MAX_LIMIT_REACHED);
     block.receipts[1].result.expectOk().expectBool(true);
 
     let receipt = chain.callReadOnlyFn(
@@ -120,5 +117,29 @@ Clarinet.test({
       deployer.address
     );
     receipt.result.expectBool(false);
+  },
+});
+
+Clarinet.test({
+  name: "Ensure that admin can't remove own account",
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const deployer = accounts.get("deployer")!;
+    const wallet_1 = accounts.get("wallet_1");
+    let block = chain.mineBlock([
+      Tx.contractCall(
+        "ryder-nft",
+        "set-admin",
+        [types.principal(deployer.address), types.bool(false)],
+        deployer.address
+      ),
+      Tx.contractCall(
+        "ryder-nft",
+        "set-admin",
+        [types.principal(deployer.address), types.bool(true)],
+        deployer.address
+      ),
+    ]);
+    block.receipts[0].result.expectErr().expectUint(Errors.ERR_NOT_ALLOWED);
+    block.receipts[1].result.expectErr().expectUint(Errors.ERR_NOT_ALLOWED);
   },
 });
