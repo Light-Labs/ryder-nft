@@ -1,0 +1,59 @@
+---
+id: 0
+name: Devnet deployment
+network: devnet
+stacks-node: "http://localhost:20443"
+bitcoin-node: "http://devnet:devnet@localhost:18443"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - requirement-publish:
+            contract-id: SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait
+            remap-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            remap-principals:
+              SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 4680
+            path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
+        - requirement-publish:
+            contract-id: SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait
+            remap-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            remap-principals:
+              SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 700
+            path: ".cache/requirements/SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait.clar"
+        - contract-publish:
+            contract-name: ryder-nft
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 87950
+            path: contracts/ryder-nft.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: ryder-mint-free
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 970
+            path: contracts/external/ryder-mint-free.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: commission-free
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 1530
+            path: contracts/external/commission-free.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: ryder-mint
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 34380
+            path: contracts/ryder-mint.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: ryder-nft-allow-list
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 1400
+            path: contracts/ryder-nft-allow-list.clar
+            anchor-block-only: true
+            clarity-version: 1

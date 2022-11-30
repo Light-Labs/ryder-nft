@@ -1,0 +1,59 @@
+---
+id: 0
+name: Testnet deployment
+network: testnet
+stacks-node: "https://stacks-node-api.testnet.stacks.co"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - requirement-publish:
+            contract-id: SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait
+            remap-sender: ST1NXBK3K5YYMD6FD41MVNP3JS1GABZ8TRVX023PT
+            remap-principals:
+              SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9: ST1NXBK3K5YYMD6FD41MVNP3JS1GABZ8TRVX023PT
+            cost: 4680
+            path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
+        - requirement-publish:
+            contract-id: SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait
+            remap-sender: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            remap-principals:
+              SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            cost: 700
+            path: ".cache/requirements/SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait.clar"
+        - contract-publish:
+            contract-name: ryder-nft
+            expected-sender: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            cost: 14280
+            path: contracts/ryder-nft.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: ryder-mint-free
+            expected-sender: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            cost: 15628
+            path: contracts/external/ryder-mint-free.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: ryder-mint
+            expected-sender: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            cost: 16210
+            path: contracts/ryder-mint.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: ryder-nft-allow-list
+            expected-sender: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            cost: 14325
+            path: contracts/ryder-nft-allow-list.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: commission-free
+            expected-sender: ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW
+            cost: 16398
+            path: contracts/external/commission-free.clar
+            anchor-block-only: true
+            clarity-version: 1
