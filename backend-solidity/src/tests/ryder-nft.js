@@ -253,4 +253,13 @@ describe("RyderNFT", function () {
   it('throws when trying to burn non existent NFT', async function () {
     await expect(ryderNft.connect(owner).burn(id1)).to.be.revertedWith('003002');
   });
+
+  it('non-admin cannot call any admin function', async function () {
+    await expect(ryderNft.connect(bob).setDicksonParameter(100)).to.be.revertedWith(ERR_UNAUTHORIZED);
+    await expect(ryderNft.connect(bob).setTokenUri("base", "suffix")).to.be.revertedWith(ERR_UNAUTHORIZED);
+    await expect(ryderNft.connect(bob).freezeMetadata()).to.be.revertedWith(ERR_UNAUTHORIZED);
+    await expect(ryderNft.connect(bob).setMinter(bob.address, true)).to.be.revertedWith(ERR_UNAUTHORIZED);
+    await expect(ryderNft.connect(bob).setAdmin(sara.address, true)).to.be.revertedWith(ERR_UNAUTHORIZED);
+    await expect(ryderNft.connect(bob).setMintLimit(100)).to.be.revertedWith(ERR_UNAUTHORIZED);
+  });
 });
