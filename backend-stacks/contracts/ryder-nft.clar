@@ -75,20 +75,20 @@
     (transfer-internal id sender recipient)))
 
 (define-public (transfer-memo (id uint) (sender principal) (recipient principal) (memo (buff 33)))
-  (begin 
+  (begin
     (try! (transfer id sender recipient))
     (print memo)
     (ok true)))
 
-(define-private (transfer-iter-fn 
-    (details {id: uint, sender: principal, recipient: principal}) 
+(define-private (transfer-iter-fn
+    (details {id: uint, sender: principal, recipient: principal})
     (result (response bool uint)))
   (transfer (get id details) (get sender details) (get recipient details)))
 
 (define-public (transfer-many (recipients (list 200 {id: uint, sender: principal, recipient: principal})))
   (fold transfer-iter-fn recipients (ok true)))
 
-(define-private (transfer-memo-iter-fn 
+(define-private (transfer-memo-iter-fn
     (details {id: uint, sender: principal, recipient: principal, memo: (buff 33)})
     (result (response bool uint)))
   (transfer-memo (get id details) (get sender details) (get recipient details)
@@ -124,27 +124,32 @@
   (begin
     (try! (check-is-admin))
     (asserts! (var-get metadata-fluid) err-unauthorized)
+    (print {
+        notification: "token-metadata-update",
+        payload: {
+          token-class: "nft",
+          contract-id: (as-contract tx-sender) }})
     (var-set token-uri new-uri)
     (ok true)))
 
 (define-public (freeze-metadata)
   (begin
     (try! (check-is-admin))
-    (ok 
+    (ok
       (var-set metadata-fluid false))))
 
 
 (define-public (set-minter (new-minter principal) (enabled bool))
   (begin
     (try! (check-is-admin))
-    (ok 
+    (ok
       (map-set minters new-minter enabled))))
 
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
     (try! (check-is-admin))
     (asserts! (not (is-eq tx-sender new-admin)) err-not-allowed)
-    (ok 
+    (ok
       (map-set admins new-admin value))))
 
 (define-public (set-mint-limit (limit uint))
