@@ -102,9 +102,9 @@ contract RyderNFT is NFToken, ERC721Metadata {
 
     // Admin functions
 
-    function setDicksonParameter(uint256 _dicksonParameter) external adminOnly {
+    function setDicksonParameter(uint256 _bitcoinTime) external adminOnly {
         require(!dicksonParameterSet, ERR_ALREADY_DONE);
-        dicksonParameter = _dicksonParameter;
+        dicksonParameter = _bitcoinTime % MAX_TOKENS;
         dicksonParameterSet = true;
     }
 

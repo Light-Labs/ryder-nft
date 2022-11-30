@@ -51,7 +51,7 @@ describe("RyderNFT", function () {
   });
 
   it("return the correct tier id", async function () {
-    await ryderNft.connect(owner).setDicksonParameter(100);
+    await ryderNft.connect(owner).setDicksonParameter(5103); // same as 100
     expect(await ryderNft.tokenIdToTierId(1)).to.equal(2201);
     expect(await ryderNft.tokenIdToTierId(2)).to.equal(4932);
     expect(await ryderNft.tokenIdToTierId(3)).to.equal(4040);
