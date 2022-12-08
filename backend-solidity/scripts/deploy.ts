@@ -1,23 +1,32 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const [deployer] = await ethers.getSigners();
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  console.log("Deploying contracts with the account:", deployer.address);
+  console.log("Recipient of Payments", deployer.address);
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  await lock.deployed();
+  const [ryderNftContract, ryderMintContract] = await Promise.all([
+    ethers.getContractFactory("RyderNFT"),
+    ethers.getContractFactory("RyderMint"),
+  ]);
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+  const ryderNft = await ryderNftContract.deploy([deployer.address]);
+  const ryderMint = await ryderMintContract.deploy(ryderNft.address, []);
+
+  await ryderMint.setPaymentRecipient(deployer.address, {
+    from: deployer.address,
+  });
+  await ryderNft.setMinter(ryderMint.address, true, { from: deployer.address });
+
+  console.log("Done");
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

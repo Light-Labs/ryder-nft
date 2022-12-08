@@ -1,7 +1,5 @@
 const { expect } = require("chai");
 
-const { BigNumber } = ethers;
-
 describe("RyderMint", function () {
 	let ryderNft, ryderMint, owner, bob, sara, paymentRecipient;
 	const zeroAddress = "0x0000000000000000000000000000000000000000";

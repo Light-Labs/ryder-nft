@@ -5,6 +5,7 @@
     "compile": "npx hardhat compile",
     "flatten": "npx hardhat flatten",
     "coverage": "npx hardhat coverage",
+    "export-abi": "npx hardhat export-abi --no-compile",
     "solhint": "solhint contract/**/*.sol"
   },
   "devDependencies": {
