@@ -110,6 +110,7 @@ describe("RyderMint", function () {
 		expect(await ryderNft.balanceOf(bob.address)).to.equal(1);
 		expect(await ryderNft.balanceOf(sara.address)).to.equal(1);
 		expect((await getEthBalanceOf(paymentRecipient.address)).sub(paymentRecipientBalance).toNumber()).to.equal(testPriceInWei * 2);
+		expect(await ryderNft.getTokenIdNonce()).to.equal(5003 - 2);
 	});
 
 	it("anyone can more than the allow-list limit during public mint", async function () {
