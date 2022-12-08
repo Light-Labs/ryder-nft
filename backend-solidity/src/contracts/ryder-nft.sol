@@ -68,6 +68,10 @@ contract RyderNFT is NFToken, ERC721Metadata {
         return _getOwnerNFTCount(who);
     }
 
+    function getTokenIdNonce() external view returns (uint256) {
+        return tokenIdNonce;
+    }
+
     function tokenIdToTierId(uint256 _tokenId) public view returns (uint256) {
         return
             !dicksonParameterSet
