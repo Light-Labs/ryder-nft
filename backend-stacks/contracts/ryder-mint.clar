@@ -5,14 +5,17 @@
 (define-constant err-max-mint-reached (err u507))
 
 (define-data-var mint-launched bool false)
-(define-data-var price-in-ustx uint u1000000000)
+(define-data-var price-in-ustx uint u1130000000)
 (define-data-var public-mint bool false)
-(define-data-var payment-recipient principal tx-sender)
+(define-data-var payment-recipient principal 'SP1YZSSPWJ5D3S1G48ZPW8NGXVG0K2TZJJXDM6N0Q)
 
 (define-map allow-list principal bool)
 (define-map mint-count principal uint)
 (define-map admins principal bool)
 (map-set admins tx-sender true)
+(map-set admins 'SP3K44BG6E9PC7SE5VZG97P25EP99ZTSQRP923A3B true)
+(map-set admins 'SPRYDH1HN9X5JWGXQ5B534XEM61X75JVDEVE0NYK true)
+(map-set admins 'SP9CZCK08XMEP1PX4YEWZGJ71YGZF3C68BX72BJS true)
 
 ;;
 ;; mint and burn

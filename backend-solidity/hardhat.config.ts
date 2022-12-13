@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomiclabs/hardhat-ethers";
 import "hardhat-abi-exporter";
+import "hardhat-gas-reporter";
 
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY!;
 const GOERLI_PRIVATE_KEY =
@@ -22,6 +23,9 @@ const config: HardhatUserConfig = {
     },
   },
   abiExporter: {},
+  gasReporter: {
+    enabled: true,
+  },
 };
 
 export default config;

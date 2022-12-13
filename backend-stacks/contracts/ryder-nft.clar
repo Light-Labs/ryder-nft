@@ -36,9 +36,9 @@
 (define-constant err-fatale (err u999))
 
 ;; Variables
-(define-data-var token-uri (string-ascii 256) "ipfs://ipfs/Qm../{id}.json")
+(define-data-var token-uri (string-ascii 256) "ipfs://bafybeih3uz24rpxzdbco6ebfy7rapyy7237wlkiiol7zrvqznr5hfua72a/{id}.json")
 (define-data-var token-id-nonce uint u1)
-(define-data-var mint-limit uint u2000)
+(define-data-var mint-limit uint u550)
 (define-data-var metadata-fluid bool true)
 
 (define-map minters principal bool)
@@ -46,8 +46,9 @@
 
 (define-map admins principal bool)
 (map-set admins tx-sender true)
-;; Additional admins:
-;; (map-set admins ... true)
+(map-set admins 'SP3K44BG6E9PC7SE5VZG97P25EP99ZTSQRP923A3B true)
+(map-set admins 'SPRYDH1HN9X5JWGXQ5B534XEM61X75JVDEVE0NYK true)
+(map-set admins 'SP9CZCK08XMEP1PX4YEWZGJ71YGZF3C68BX72BJS true)
 
 
 (define-public (mint (recipient principal))

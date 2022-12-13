@@ -20,26 +20,25 @@ async function fetchTierByNftId(nftId: number) {
 (async () => {
   console.log("start");
   for (let i = 1; i <= MAX_TOKENS; i++) {
-    const tier = await fetchTierByNftId(1);
+    const tier = "unrevealed"; // await fetchTierByNftId(1);
     const metadata = {
       sip: 16,
-      name: "Ryder NFT",
-      description: "",
-      image: "ipfs://Qm",
-      external_url: "",
+      id: i,
+      name: `Ryder Digital Collectible #${i}`,
+      description:
+        "Ryder is the world's first social wallet. One tap to save, swap, and recover assets. The first edition is limited to 5,003 pieces redeemable for the Ryder device. Each collectible comes with its own unique early backer benefits.",
+      image:
+        "ipfs://bafybeicxq2kwlwixiqb364mbdpwvgx2p2xechhyusetj3sxytw64gduws4",
+      external_url: "https://ryder.sale",
       attributes: [
         {
-          display_type: "number",
           trait_type: "tier",
           value: tier,
         },
       ],
-      localization: {
-        uri: "ipfs://Qm/1/{locale}.json",
-        default: "en",
-        locales: ["kr", "zh", "en", "fr", "de"],
-      },
+      collection: "Ryder Digital Collectible"
     };
-    fs.writeFileSync(`meta-data/${i}.json`, JSON.stringify(metadata));
+    fs.writeFileSync(`meta-data-0/${i}.json`, JSON.stringify(metadata));
   }
+  console.log("done");
 })();
