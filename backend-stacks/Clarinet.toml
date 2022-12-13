@@ -19,6 +19,10 @@ clarity_version = 1
 path = 'contracts/external/ryder-mint-free.clar'
 clarity_version = 1
 
+[contracts.ryder-mint-helper-10]
+path = 'contracts/external/ryder-mint-helper-10.clar'
+clarity_version = 1
+
 [contracts.ryder-mint]
 path = 'contracts/ryder-mint.clar'
 clarity_version = 1
