@@ -47,14 +47,14 @@ plan:
     - id: 0
       transactions:
         - emulated-contract-publish:
-            contract-name: commission-trait
-            emulated-sender: SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C
-            path: ".cache/requirements/SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait.clar"
-            clarity-version: 1
-        - emulated-contract-publish:
             contract-name: nft-trait
             emulated-sender: SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9
             path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
+            clarity-version: 1
+        - emulated-contract-publish:
+            contract-name: commission-trait
+            emulated-sender: SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C
+            path: ".cache/requirements/SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait.clar"
             clarity-version: 1
         - emulated-contract-publish:
             contract-name: ryder-nft
@@ -67,11 +67,6 @@ plan:
             path: contracts/external/ryder-mint-free.clar
             clarity-version: 1
         - emulated-contract-publish:
-            contract-name: commission-free
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/external/commission-free.clar
-            clarity-version: 1
-        - emulated-contract-publish:
             contract-name: ryder-mint
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/ryder-mint.clar
@@ -80,4 +75,14 @@ plan:
             contract-name: ryder-nft-allow-list
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/ryder-nft-allow-list.clar
+            clarity-version: 1
+        - emulated-contract-publish:
+            contract-name: commission-free
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/external/commission-free.clar
+            clarity-version: 1
+        - emulated-contract-publish:
+            contract-name: ryder-mint-v2
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/ryder-mint-v2.clar
             clarity-version: 1
