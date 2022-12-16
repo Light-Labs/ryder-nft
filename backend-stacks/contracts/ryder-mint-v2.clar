@@ -52,18 +52,19 @@
 		(try! (contract-call? .ryder-nft transfer transfer-id contract-principal tx-sender))
 		(map-set token-mapping index (default-to upper-bound (map-get? token-mapping upper-bound)))
 		(var-set upper-mint-id (- upper-bound u1))
-		(ok (var-set last-transferred-id transfer-id))))
+		(var-set last-transferred-id transfer-id)
+		(ok transfer-id)))
 
 (define-public (claim-five)
-	(begin
+	(ok (list
 		(try! (claim))
 		(try! (claim))
 		(try! (claim))
 		(try! (claim))
-		(claim)))
+		(try! (claim)))))
 
 (define-public (claim-ten)
-	(begin
+	(ok (list
 		(try! (claim))
 		(try! (claim))
 		(try! (claim))
@@ -73,7 +74,7 @@
 		(try! (claim))
 		(try! (claim))
 		(try! (claim))
-		(claim)))
+		(try! (claim)))))
 
 (define-read-only (get-upper-bound)
 	(var-get upper-mint-id))
