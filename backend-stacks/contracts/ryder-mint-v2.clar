@@ -19,14 +19,14 @@
 
 (define-map token-mapping uint uint)
 
-(define-private (mint-self-iter (c (buff 1)) (p (optional (response bool uint))))
+(define-private (mint-to-contract-iter (c (buff 1)) (p (optional (response bool uint))))
 	(some (contract-call? .ryder-nft mint contract-principal)))
 
-(define-public (mint-self (iterations (buff 200)))
+(define-public (mint-to-contract (iterations (buff 200)))
 	(begin
 		(and (is-eq (var-get lower-mint-id) u0) 
 			(var-set lower-mint-id (contract-call? .ryder-nft get-token-id-nonce)))
-		(fold mint-self-iter iterations none)
+		(fold mint-to-contract-iter iterations none)
 		(ok (var-set upper-mint-id (- (contract-call? .ryder-nft get-token-id-nonce) u1)))))
 
 (define-read-only (get-vrf)
@@ -100,8 +100,8 @@
 		(unwrap! (get p data) data)
 		{i: (- (get i data) u1), p: (as-contract (contract-call? .ryder-nft burn (get i data)))}))
 
-;; once burn-top is used, mint-self can never be used again
-(define-public (burn-top (iterations (buff 200)))
+;; once burn-top is used, mint-to-contract can never be used again
+(define-public (burn-contract-tokens-top (iterations (buff 200)))
 	(let ((result (fold burn-top-iter iterations {i: (var-get upper-mint-id), p: (ok true)})))
 		(try! (check-is-admin))
 		(unwrap! (get p result) err-failed)

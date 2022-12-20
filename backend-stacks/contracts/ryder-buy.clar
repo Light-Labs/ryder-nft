@@ -26,11 +26,11 @@
 
 (define-map token-mapping uint uint)
 
-(define-private (mint-self-iter (c (buff 1)) (p (response bool uint)))
+(define-private (mint-to-contract-iter (c (buff 1)) (p (response bool uint)))
 	(contract-call? .ryder-nft mint contract-principal))
 
-(define-public (mint-self (iterations (buff 200)))
-	(fold mint-self-iter iterations (ok true)))
+(define-public (mint-to-contract (iterations (buff 200)))
+	(fold mint-to-contract-iter iterations (ok true)))
 
 (define-read-only (get-tier-price (tier-id uint))
 	(map-get? tier-prices tier-id))
@@ -67,7 +67,7 @@
 		(try! previous)
 		(as-contract (contract-call? .ryder-nft burn token-id))))
 
-(define-public (burn (token-ids (list 200 uint)))
+(define-public (burn-contract-tokens (token-ids (list 200 uint)))
 	(begin
 		(try! (check-is-admin))
 		(fold burn-iter token-ids (ok true))))
