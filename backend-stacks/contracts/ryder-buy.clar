@@ -81,4 +81,5 @@
 (define-public (set-price-in-ustx (tier-id uint) (price uint))
   (begin
     (try! (check-is-admin))
+	(asserts! (> tier-id u0) err-failed)
     (ok (map-set tier-prices tier-id price))))

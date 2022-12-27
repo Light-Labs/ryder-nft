@@ -5,6 +5,10 @@
 (define-constant err-mint-not-live (err u600))
 (define-constant err-sold-out (err u601))
 (define-constant err-failed (err u602))
+(define-constant err-no-claims (err u603))
+(define-constant err-cannot-claim-future (err u604))
+
+(define-constant block-height-increment u1)
 
 (define-data-var mint-enabled bool false)
 (define-data-var price-in-ustx uint u1130000000)
@@ -13,68 +17,80 @@
 (define-data-var lower-mint-id uint u0)
 (define-data-var upper-mint-id uint u0)
 (define-data-var last-transferred-id uint u0)
+(define-data-var amount-available-for-purchase uint u0)
 
 (define-map admins principal bool)
 (map-set admins tx-sender true)
 
+(define-map nft-claims {height: uint, buyer: principal} uint)
 (define-map token-mapping uint uint)
 
-(define-private (mint-to-contract-iter (c (buff 1)) (p (optional (response bool uint))))
-	(some (contract-call? .ryder-nft mint contract-principal)))
+(define-read-only (nfts-available)
+	(var-get amount-available-for-purchase))
 
-(define-public (mint-to-contract (iterations (buff 200)))
+(define-read-only (get-nft-claims (height uint) (buyer principal))
+	(default-to u0 (map-get? nft-claims {height: height, buyer: buyer})))
+
+(define-read-only (get-vrf (height uint))
+	(get-block-info? vrf-seed height))
+
+(define-private (pick-next-random-token-id (lower-bound uint) (upper-bound uint) (height uint))
 	(begin
-		(and (is-eq (var-get lower-mint-id) u0) 
-			(var-set lower-mint-id (contract-call? .ryder-nft get-token-id-nonce)))
-		(fold mint-to-contract-iter iterations none)
-		(ok (var-set upper-mint-id (- (contract-call? .ryder-nft get-token-id-nonce) u1)))))
-
-(define-read-only (get-vrf)
-	(unwrap-panic (get-block-info? vrf-seed (- block-height u1))))
-
-(define-private (pick-next-random-token-id (lower-bound uint) (upper-bound uint))
-	(begin
-		(asserts! (> upper-bound lower-bound) lower-bound)
-		(let ((seed (sha256 (concat (get-vrf) (sha256 (var-get last-transferred-id)))))
+		(asserts! (> upper-bound lower-bound) (some lower-bound))
+		(let ((seed (sha256 (concat (unwrap! (get-vrf height) none) (sha256 (var-get last-transferred-id)))))
 			(number (+
 				(match (element-at seed u0) byte (unwrap-panic (index-of byte-list byte)) u0)
 				(match (element-at seed u1) byte (* (unwrap-panic (index-of byte-list byte)) u256) u0)
 				(match (element-at seed u2) byte (* (unwrap-panic (index-of byte-list byte)) u65536) u0))))
-			(+ lower-bound (mod number (- upper-bound lower-bound))))))
+			(some (+ lower-bound (mod number (- upper-bound lower-bound)))))))
 
-(define-public (claim)
-	(let ((upper-bound (var-get upper-mint-id))
-		(index (pick-next-random-token-id (var-get lower-mint-id) upper-bound))
-		(transfer-id (default-to index (map-get? token-mapping index))))
+(define-public (buy (amount uint))
+	(let ((available (var-get amount-available-for-purchase))
+		(target-height (+ block-height block-height-increment)))
 		(asserts! (var-get mint-enabled) err-mint-not-live)
-		(asserts! (> upper-bound u0) err-sold-out)
-		(try! (stx-transfer? (var-get price-in-ustx) tx-sender (var-get payment-recipient)))
-		(try! (contract-call? .ryder-nft transfer transfer-id contract-principal tx-sender))
+		(asserts! (>= available amount) err-sold-out)
+		(var-set amount-available-for-purchase (- available amount))
+		(map-set nft-claims {height: target-height, buyer: tx-sender} (+ (get-nft-claims target-height tx-sender) amount))
+		(try! (stx-transfer? (* (var-get price-in-ustx) amount) tx-sender (var-get payment-recipient)))
+		(ok target-height)
+	))
+
+(define-public (claim (height uint))
+	(claim-for height tx-sender))
+
+(define-public (claim-for (height uint) (buyer principal))
+	(let ((upper-bound (var-get upper-mint-id))
+		(index (unwrap! (pick-next-random-token-id (var-get lower-mint-id) upper-bound height) err-cannot-claim-future))
+		(transfer-id (default-to index (map-get? token-mapping index)))
+		(claims (get-nft-claims height buyer)))
+		(asserts! (> claims u0) err-no-claims)
+		(try! (contract-call? .ryder-nft transfer transfer-id contract-principal buyer))
 		(map-set token-mapping index (default-to upper-bound (map-get? token-mapping upper-bound)))
 		(var-set upper-mint-id (- upper-bound u1))
 		(var-set last-transferred-id transfer-id)
+		(map-set nft-claims {height: height, buyer: buyer} (- claims u1))
 		(ok transfer-id)))
 
-(define-public (claim-five)
+(define-public (claim-five (height uint))
 	(ok (list
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim)))))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height)))))
 
-(define-public (claim-ten)
+(define-public (claim-ten (height uint))
 	(ok (list
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim))
-		(try! (claim)))))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height))
+		(try! (claim height)))))
 
 (define-read-only (get-upper-bound)
 	(var-get upper-mint-id))
@@ -83,11 +99,24 @@
 (define-read-only (check-is-admin)
   (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
 
+(define-private (mint-to-contract-iter (c (buff 1)) (p (optional (response bool uint))))
+	(some (contract-call? .ryder-nft mint contract-principal)))
+
+(define-public (mint-to-contract (iterations (buff 200)))
+	(begin
+		(try! (check-is-admin))
+		(asserts! (not (var-get mint-enabled)) err-not-allowed)
+		(and (is-eq (var-get lower-mint-id) u0) 
+			(var-set lower-mint-id (contract-call? .ryder-nft get-token-id-nonce)))
+		(fold mint-to-contract-iter iterations none)
+		(var-set upper-mint-id (- (contract-call? .ryder-nft get-token-id-nonce) u1))
+		(var-set amount-available-for-purchase (- (+ (var-get upper-mint-id) u1) (var-get lower-mint-id)))
+		(ok true)))
+
 (define-public (set-mint-enabled (enabled bool))
 	(begin
 		(try! (check-is-admin))
-		(ok (var-set mint-enabled enabled))
-		))
+		(ok (var-set mint-enabled enabled))))
 
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
