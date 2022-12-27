@@ -52,8 +52,7 @@
 		(var-set amount-available-for-purchase (- available amount))
 		(map-set nft-claims {height: target-height, buyer: tx-sender} (+ (get-nft-claims target-height tx-sender) amount))
 		(try! (stx-transfer? (* (var-get price-in-ustx) amount) tx-sender (var-get payment-recipient)))
-		(ok target-height)
-	))
+		(ok target-height)))
 
 (define-public (claim (height uint))
 	(claim-for height tx-sender))
@@ -63,6 +62,7 @@
 		(index (unwrap! (pick-next-random-token-id (var-get lower-mint-id) upper-bound height) err-cannot-claim-future))
 		(transfer-id (default-to index (map-get? token-mapping index)))
 		(claims (get-nft-claims height buyer)))
+		(asserts! (or (is-eq buyer tx-sender) (default-to false (map-get? admins contract-caller))) err-unauthorized)
 		(asserts! (> claims u0) err-no-claims)
 		(try! (contract-call? .ryder-nft transfer transfer-id contract-principal buyer))
 		(map-set token-mapping index (default-to upper-bound (map-get? token-mapping upper-bound)))
@@ -110,8 +110,7 @@
 			(var-set lower-mint-id (contract-call? .ryder-nft get-token-id-nonce)))
 		(fold mint-to-contract-iter iterations none)
 		(var-set upper-mint-id (- (contract-call? .ryder-nft get-token-id-nonce) u1))
-		(var-set amount-available-for-purchase (- (+ (var-get upper-mint-id) u1) (var-get lower-mint-id)))
-		(ok true)))
+		(ok (var-set amount-available-for-purchase (- (+ (var-get upper-mint-id) u1) (var-get lower-mint-id))))))
 
 (define-public (set-mint-enabled (enabled bool))
 	(begin
