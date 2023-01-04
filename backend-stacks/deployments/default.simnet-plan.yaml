@@ -57,11 +57,6 @@ plan:
             path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
             clarity-version: 1
         - emulated-contract-publish:
-            contract-name: commission-free
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/external/commission-free.clar
-            clarity-version: 1
-        - emulated-contract-publish:
             contract-name: ryder-nft
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/ryder-nft.clar
@@ -77,9 +72,9 @@ plan:
             path: contracts/ryder-nft-allow-list.clar
             clarity-version: 1
         - emulated-contract-publish:
-            contract-name: ryder-buy
+            contract-name: ryder-mint-v2
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/ryder-buy.clar
+            path: contracts/ryder-mint-v2.clar
             clarity-version: 1
         - emulated-contract-publish:
             contract-name: ryder-mint-free
@@ -87,7 +82,7 @@ plan:
             path: contracts/external/ryder-mint-free.clar
             clarity-version: 1
         - emulated-contract-publish:
-            contract-name: ryder-mint-v2
+            contract-name: commission-free
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/ryder-mint-v2.clar
+            path: contracts/external/commission-free.clar
             clarity-version: 1

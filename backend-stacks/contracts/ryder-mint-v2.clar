@@ -71,7 +71,7 @@
 		(map-set nft-claims {height: height, buyer: buyer} (- claims u1))
 		(ok transfer-id)))
 
-(define-private (claim-many (heights (list 20 uint)))
+(define-public (claim-many (heights (list 20 uint)))
 	(ok (map claim heights)))
 
 (define-read-only (get-upper-bound)

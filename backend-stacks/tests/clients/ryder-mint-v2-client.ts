@@ -15,15 +15,15 @@ export function claim(height: number, userAddress: string) {
 }
 
 export function claimTwo(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim-two", [types.uint(height)], userAddress);
+  return Tx.contractCall("ryder-mint-v2", "claim-many", [types.list([types.uint(height), types.uint(height)])], userAddress);
 }
 
 export function claimFive(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim-five", [types.uint(height)], userAddress);
+  return Tx.contractCall("ryder-mint-v2", "claim-many", [types.list([types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height)])], userAddress);
 }
 
 export function claimTen(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim-ten", [types.uint(height)], userAddress);
+  return Tx.contractCall("ryder-mint-v2", "claim-many", [types.list([types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height)])], userAddress);
 }
 
 export function setMintEnabled(enabled: boolean, userAddress: string) {
