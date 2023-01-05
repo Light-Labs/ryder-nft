@@ -27,8 +27,9 @@ contract RyderNFT is NFToken, ERC721Metadata {
     bool private dicksonParameterSet = false;
     uint256 private dicksonParameter = 0;
     uint256 private tokenIdNonce = 5003;
-    uint256 private mintLimit = 2000;
-    string private nftTokenUriBase = "ipfs://ipfs/Qm../"; // without .json
+    uint256 private mintLimit = 550;
+    string private nftTokenUriBase =
+        "ipfs://bafybeih3uz24rpxzdbco6ebfy7rapyy7237wlkiiol7zrvqznr5hfua72a/"; // without .json
     string private nftTokenUriSuffix = ".json";
     bool private metadataFrozen = false;
 

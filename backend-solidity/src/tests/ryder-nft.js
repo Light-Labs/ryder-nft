@@ -21,7 +21,7 @@ describe("RyderNFT", function () {
     const admins = [owner.getAddress()];
     ryderNft = await ryderNftContract.deploy(admins);
     ryderMockMint = await ryderMockMintContract.deploy(ryderNft.address);
-    await ryderNft.setMinter(ryderMockMint.address, { from: owner });
+    await ryderNft.setMinter(ryderMockMint.address, true, { from: owner.address });
   });
 
   it("authorized minter can mint", async function () {
@@ -84,7 +84,7 @@ describe("RyderNFT", function () {
     await ryderMockMint["mint()"](); // mint one NFT because tokenURI throws for invalid NFTs
     expect(await ryderNft.name()).to.equal("Ryder NFT");
     expect(await ryderNft.symbol()).to.equal("RYD");
-    expect(await ryderNft.tokenURI(id1)).to.equal("ipfs://ipfs/Qm../5003.json");
+    expect(await ryderNft.tokenURI(id1)).to.equal("ipfs://bafybeih3uz24rpxzdbco6ebfy7rapyy7237wlkiiol7zrvqznr5hfua72a/5003.json");
   });
 
   it('correctly burns a NFT', async function () {

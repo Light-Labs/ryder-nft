@@ -47,7 +47,7 @@ describe("RyderMint", function () {
 		ryderNft = await ryderNftContract.deploy([owner.address]);
 		ryderMint = await ryderMintContract.deploy(ryderNft.address, []);
 		await ryderMint.setPaymentRecipient(paymentRecipient.address, { from: owner.address });
-		await ryderNft.setMinter(ryderMint.address, { from: owner.address });
+		await ryderNft.setMinter(ryderMint.address, true, { from: owner.address });
 	});
 
 	it("cannot mint before launch", async function () {

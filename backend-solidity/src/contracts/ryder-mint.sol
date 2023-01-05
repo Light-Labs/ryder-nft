@@ -14,7 +14,7 @@ contract RyderMint {
     string public constant ERR_NOT_ALLOWED = "510";
 
     bool mintLaunched = false;
-    uint256 private mintPrice = 1 ether;
+    uint256 private mintPrice = 0.25 ether;
     bool private publicMint = false;
     address payable private paymentRecipient;
     address private nftAddress;
