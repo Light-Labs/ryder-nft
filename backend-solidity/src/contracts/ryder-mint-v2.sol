@@ -92,7 +92,7 @@ contract RyderMintV2 {
         returns (uint256)
     {
         require(
-            height > block.number && block.number - height >= 256,
+            height < block.number && block.number - height >= 256,
             ERR_CLAIM_NOT_EXPIRED
         );
         uint256 claims = getNftClaims(height, buyer);
