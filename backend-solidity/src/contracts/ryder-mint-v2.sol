@@ -15,6 +15,7 @@ contract RyderMintV2 {
     string public constant ERR_NO_CLAIMS = "511";
     string public constant ERR_CLAIM_EXPIRED = "512";
     string public constant ERR_CLAIM_NOT_EXPIRED = "513";
+    string public constant ERR_TOO_EARLY = "514";
 
     bool private mintLaunched = false;
     uint256 private mintPrice = 0.25 ether;
@@ -30,6 +31,10 @@ contract RyderMintV2 {
     mapping(uint256 => mapping(address => uint256)) nftClaims;
     mapping(uint256 => uint256) tokenMapping;
     mapping(address => bool) admins;
+
+    event Buy(uint256);
+    event Refresh(uint256);
+    event Claim(uint256);
 
     modifier adminOnly() {
         require(admins[msg.sender], ERR_UNAUTHORIZED);
@@ -61,7 +66,7 @@ contract RyderMintV2 {
     }
 
     function getRandomSeed(uint256 height) public view returns (bytes32) {
-        require(height < block.number, ERR_NOT_ALLOWED);
+        require(height < block.number, ERR_TOO_EARLY);
         require(block.number - height < 256, ERR_CLAIM_EXPIRED);
         return keccak256(abi.encode(blockhash(height), lastTransferredId));
     }
@@ -78,13 +83,16 @@ contract RyderMintV2 {
 
     function _buy(uint256 amount) private returns (uint256) {
         require(mintLaunched, ERR_NOT_LAUNCHED);
+        require(amount > 0, ERR_NOT_ALLOWED);
         require(availableForPurchase >= amount, ERR_SOLD_OUT);
         require(msg.value >= mintPrice * amount, ERR_INVALID_PAYMENT);
         (bool success, ) = paymentRecipient.call{value: msg.value}("");
         require(success, ERR_PAYMENT_FAILED);
         availableForPurchase -= amount;
-        nftClaims[block.number + BLOCK_HEIGHT_INCREMENT][msg.sender] += amount;
-        return block.number + BLOCK_HEIGHT_INCREMENT;
+        uint256 targetHeight = block.number + BLOCK_HEIGHT_INCREMENT;
+        nftClaims[targetHeight][msg.sender] += amount;
+        emit Buy(targetHeight);
+        return targetHeight;
     }
 
     function refreshBuyClaims(uint256 height, address buyer)
@@ -98,8 +106,10 @@ contract RyderMintV2 {
         uint256 claims = getNftClaims(height, buyer);
         require(claims > 0, ERR_NO_CLAIMS);
         nftClaims[height][buyer] = 0;
-        nftClaims[block.number + BLOCK_HEIGHT_INCREMENT][buyer] = claims;
-        return block.number + BLOCK_HEIGHT_INCREMENT;
+        uint256 targetHeight = block.number + BLOCK_HEIGHT_INCREMENT;
+        nftClaims[targetHeight][buyer] = claims;
+        emit Refresh(targetHeight);
+        return targetHeight;
     }
 
     function claim(uint256 height) public returns (uint256) {
@@ -121,6 +131,7 @@ contract RyderMintV2 {
         lastTransferredId = transferId;
         --nftClaims[height][buyer];
         nftAddress.safeTransferFrom(address(this), buyer, transferId);
+        emit Claim(transferId);
         return transferId;
     }
 
