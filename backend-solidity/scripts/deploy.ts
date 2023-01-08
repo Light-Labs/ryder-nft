@@ -11,7 +11,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account: ", deployer.address);
-  console.log("Recipient of Payments: ", deployer.address);
+  console.log("Recipient of payments: ", paymentRecipient);
   // console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const [ryderNftContract, ryderMintContract] = await Promise.all([
