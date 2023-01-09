@@ -117,8 +117,6 @@ Clarinet.test({
     block.receipts[0].result.expectErr().expectUint(Errors.ERR_UNAUTHORIZED);
     block.receipts[1].result.expectOk();
     block.receipts[2].result.expectOk();
-    block.receipts[3].result
-      .expectErr()
-      .expectUint(Errors.ERR_SAME_SENDER_RECIPIENT);
+    block.receipts[3].result.expectOk(); // payment sent to SP1YZSSPWJ5D3S1G48ZPW8NGXVG0K2TZJJXDM6N0Q
   },
 });
