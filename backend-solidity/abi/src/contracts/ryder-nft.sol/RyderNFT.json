@@ -272,6 +272,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getTokenIdNonce",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -450,7 +463,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_dicksonParameter",
+        "name": "_bitcoinTime",
         "type": "uint256"
       }
     ],
