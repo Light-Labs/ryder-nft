@@ -1,8 +1,8 @@
 (define-constant contract-principal (as-contract tx-sender))
 
-(define-constant err-unauthorized (err u403))
-(define-constant err-not-allowed (err u508))
-(define-constant err-mint-not-live (err u600))
+(define-constant err-forbidden (err u403))
+(define-constant err-same-principal (err u508))
+(define-constant err-bad-mint-status (err u600))
 (define-constant err-sold-out (err u601))
 (define-constant err-failed (err u602))
 (define-constant err-no-claims (err u603))
@@ -47,7 +47,7 @@
 (define-public (buy (amount uint))
 	(let ((available (var-get amount-available-for-purchase))
 		(target-height (+ block-height block-height-increment)))
-		(asserts! (var-get mint-enabled) err-mint-not-live)
+		(asserts! (var-get mint-enabled) err-bad-mint-status)
 		(asserts! (>= available amount) err-sold-out)
 		(var-set amount-available-for-purchase (- available amount))
 		(map-set nft-claims {height: target-height, buyer: tx-sender} (+ (get-nft-claims target-height tx-sender) amount))
@@ -62,7 +62,7 @@
 		(index (unwrap! (pick-next-random-token-id (var-get lower-mint-id) upper-bound height) err-cannot-claim-future))
 		(transfer-id (default-to index (map-get? token-mapping index)))
 		(claims (get-nft-claims height buyer)))
-		(asserts! (or (is-eq buyer tx-sender) (default-to false (map-get? admins contract-caller))) err-unauthorized)
+		(asserts! (or (is-eq buyer tx-sender) (default-to false (map-get? admins contract-caller))) err-forbidden)
 		(asserts! (> claims u0) err-no-claims)
 		(try! (contract-call? .ryder-nft transfer transfer-id contract-principal buyer))
 		(map-set token-mapping index (default-to upper-bound (map-get? token-mapping upper-bound)))
@@ -79,7 +79,7 @@
 
 ;; admin function
 (define-read-only (check-is-admin)
-  (ok (asserts! (default-to false (map-get? admins contract-caller)) err-unauthorized)))
+  (ok (asserts! (default-to false (map-get? admins contract-caller)) err-forbidden)))
 
 (define-private (mint-to-contract-iter (c (buff 1)) (p (optional (response bool uint))))
 	(some (contract-call? .ryder-nft mint contract-principal)))
@@ -87,7 +87,7 @@
 (define-public (mint-to-contract (iterations (buff 200)))
 	(begin
 		(try! (check-is-admin))
-		(asserts! (not (var-get mint-enabled)) err-not-allowed)
+		(asserts! (not (var-get mint-enabled)) err-bad-mint-status)
 		(and (is-eq (var-get lower-mint-id) u0) 
 			(var-set lower-mint-id (contract-call? .ryder-nft get-token-id-nonce)))
 		(fold mint-to-contract-iter iterations none)
@@ -102,7 +102,7 @@
 (define-public (set-admin (new-admin principal) (value bool))
   (begin
     (try! (check-is-admin))
-    (asserts! (not (is-eq tx-sender new-admin)) err-not-allowed)
+    (asserts! (not (is-eq tx-sender new-admin)) err-same-principal)
     (ok (map-set admins new-admin value))))
 
 (define-private (burn-top-iter (c (buff 1)) (data {i: uint, p: (response bool uint)}))
