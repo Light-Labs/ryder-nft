@@ -77,8 +77,10 @@ contract RyderMintV2 {
         uint256 height
     ) public view returns (uint256) {
         return
-            lowerBound +
-            (uint256(getRandomSeed(height)) % (upperBound - lowerBound));
+            upperBound > lowerBound
+                ? lowerBound +
+                    (uint256(getRandomSeed(height)) % (upperBound - lowerBound))
+                : lowerBound;
     }
 
     function _buy(uint256 amount) private returns (uint256) {

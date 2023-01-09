@@ -176,4 +176,13 @@ describe("RyderMintV2", function () {
 		await expect(ryderMintV2.connect(bob).setPaymentRecipient(sara.address)).to.be.revertedWith(ERR_UNAUTHORIZED);
 		await expect(ryderMintV2.connect(bob).setAdmin(sara.address, true)).to.be.revertedWith(ERR_UNAUTHORIZED);
 	});
+
+	it("mint and buy all test", async function () {
+		const totalAmount = 550;
+		await prepareMint(totalAmount);
+		const resultBob = await doMintFor(bob, totalAmount);
+		await mineBlocksUntil(resultBob);
+		await doClaimFor(bob, Array(totalAmount).fill(resultBob.toNumber()));
+		expect(await ryderNft.balanceOf(bob.address)).to.equal(totalAmount);
+	});
 });
