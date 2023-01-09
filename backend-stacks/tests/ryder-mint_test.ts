@@ -14,7 +14,8 @@ import {
 import { setMinter, setMintLimit } from "./clients/ryder-nft-client.ts";
 import * as Errors from "./clients/error-codes.ts";
 
-const MINT_PRICE = 1000_000_000;
+const MINT_PRICE = 1130_000_000;
+const payment_recipient = 'SP1YZSSPWJ5D3S1G48ZPW8NGXVG0K2TZJJXDM6N0Q';
 
 Clarinet.test({
   name: "Ensure that users can mint",
@@ -29,7 +30,7 @@ Clarinet.test({
     block.receipts[0].events.expectSTXTransferEvent(
       MINT_PRICE,
       wallet_1.address,
-      deployer.address
+      payment_recipient
     );
     block.receipts[0].events.expectNonFungibleTokenMintEvent(
       types.uint(1),
@@ -141,7 +142,7 @@ Clarinet.test({
     block.receipts[0].events.expectSTXTransferEvent(
       MINT_PRICE,
       wallet_1.address,
-      deployer.address
+      payment_recipient
     );
     block.receipts[0].events.expectNonFungibleTokenMintEvent(
       types.uint(1),

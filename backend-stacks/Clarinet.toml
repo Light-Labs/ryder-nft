@@ -10,14 +10,20 @@ contract_id = 'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.commission-trait'
 
 [[project.requirements]]
 contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
-
 [contracts.commission-free]
 path = 'contracts/external/commission-free.clar'
+clarity_version = 1
+
+[contracts.ryder-mint]
+path = 'contracts/ryder-mint.clar'
 clarity_version = 1
 
 [contracts.ryder-mint-free]
 path = 'contracts/external/ryder-mint-free.clar'
 clarity_version = 1
+
+[contracts.ryder-mint-v2]
+path = 'contracts/ryder-mint-v2.clar'
 
 [contracts.ryder-mint-helper-10]
 path = 'contracts/external/ryder-mint-helper-10.clar'
@@ -34,7 +40,6 @@ clarity_version = 1
 [contracts.ryder-nft-allow-list]
 path = 'contracts/ryder-nft-allow-list.clar'
 clarity_version = 1
-
 [repl.analysis]
 passes = ['check_checker']
 
