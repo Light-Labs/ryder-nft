@@ -29,10 +29,6 @@ path = 'contracts/ryder-mint-v2.clar'
 path = 'contracts/external/ryder-mint-helper-10.clar'
 clarity_version = 1
 
-[contracts.ryder-mint]
-path = 'contracts/ryder-mint.clar'
-clarity_version = 1
-
 [contracts.ryder-nft]
 path = 'contracts/ryder-nft.clar'
 clarity_version = 1

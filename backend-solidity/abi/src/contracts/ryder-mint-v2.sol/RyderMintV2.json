@@ -267,6 +267,30 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "heights",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "buyers",
+        "type": "address[]"
+      }
+    ],
+    "name": "claimManyFor",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "result",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getMintLaunched",
     "outputs": [

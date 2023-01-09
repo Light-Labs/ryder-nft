@@ -74,6 +74,9 @@
 (define-public (claim-many (heights (list 20 uint)))
 	(ok (map claim heights)))
 
+(define-public (claim-many-for (heights (list 50 uint)) (buyers (list 50 principal)))
+	(ok (map claim-for heights buyers)))
+
 (define-read-only (get-upper-bound)
 	(var-get upper-mint-id))
 

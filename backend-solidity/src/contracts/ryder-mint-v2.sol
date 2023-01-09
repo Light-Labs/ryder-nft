@@ -146,6 +146,16 @@ contract RyderMintV2 {
             result[i] = claimFor(heights[i], msg.sender);
     }
 
+    function claimManyFor(uint256[] calldata heights, address[] calldata buyers)
+        public
+        returns (uint256[] memory result)
+    {
+        require(heights.length == buyers.length, ERR_UNAUTHORIZED);
+        result = new uint256[](heights.length);
+        for (uint256 i = 0; i < heights.length; ++i)
+            result[i] = claimFor(heights[i], buyers[i]);
+    }
+
     function getPriceInWei() external view returns (uint256) {
         return mintPrice;
     }
