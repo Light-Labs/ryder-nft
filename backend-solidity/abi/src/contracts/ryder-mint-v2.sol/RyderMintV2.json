@@ -478,6 +478,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "newTrigger",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setClaimTrigger",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bool",
         "name": "launched",
         "type": "bool"
