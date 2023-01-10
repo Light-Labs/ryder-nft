@@ -31,6 +31,7 @@ contract RyderMintV2 {
     mapping(uint256 => mapping(address => uint256)) nftClaims;
     mapping(uint256 => uint256) tokenMapping;
     mapping(address => bool) admins;
+    mapping(address => bool) claimTriggers;
 
     event Buy(uint256);
     event Refresh(uint256);
@@ -121,7 +122,12 @@ contract RyderMintV2 {
     function claimFor(uint256 height, address buyer) public returns (uint256) {
         uint256 claims = getNftClaims(height, buyer);
         require(claims > 0, ERR_NO_CLAIMS);
-        require(buyer == msg.sender || admins[msg.sender], ERR_UNAUTHORIZED);
+        require(
+            buyer == msg.sender ||
+                claimTriggers[msg.sender] ||
+                admins[msg.sender],
+            ERR_UNAUTHORIZED
+        );
         uint256 index = pickNextRandomTokenId(lowerMintId, upperMintId, height);
         uint256 transferId = tokenMapping[index] != 0
             ? tokenMapping[index]
@@ -197,5 +203,12 @@ contract RyderMintV2 {
     function setAdmin(address newAdmin, bool enabled) external adminOnly {
         require(newAdmin != msg.sender, ERR_NOT_ALLOWED);
         admins[newAdmin] = enabled;
+    }
+
+    function setClaimTrigger(address newTrigger, bool enabled)
+        external
+        adminOnly
+    {
+        claimTriggers[newTrigger] = enabled;
     }
 }

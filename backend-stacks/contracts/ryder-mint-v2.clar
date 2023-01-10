@@ -20,6 +20,7 @@
 (define-data-var amount-available-for-purchase uint u0)
 
 (define-map admins principal bool)
+(define-map claim-triggers principal bool)
 (map-set admins tx-sender true)
 
 (define-map nft-claims {height: uint, buyer: principal} uint)
@@ -62,7 +63,11 @@
 		(index (unwrap! (pick-next-random-token-id (var-get lower-mint-id) upper-bound height) err-cannot-claim-future))
 		(transfer-id (default-to index (map-get? token-mapping index)))
 		(claims (get-nft-claims height buyer)))
-		(asserts! (or (is-eq buyer tx-sender) (default-to false (map-get? admins contract-caller))) err-forbidden)
+		(asserts! (or
+			(is-eq buyer tx-sender)
+			(default-to false (map-get? claim-triggers contract-caller))
+			(default-to false (map-get? admins contract-caller)))
+			err-forbidden)
 		(asserts! (> claims u0) err-no-claims)
 		(try! (contract-call? .ryder-nft transfer transfer-id contract-principal buyer))
 		(map-set token-mapping index (default-to upper-bound (map-get? token-mapping upper-bound)))
@@ -107,6 +112,11 @@
     (try! (check-is-admin))
     (asserts! (not (is-eq tx-sender new-admin)) err-same-principal)
     (ok (map-set admins new-admin value))))
+
+(define-public (set-claim-trigger (new-trigger principal) (value bool))
+  (begin
+    (try! (check-is-admin))
+    (ok (map-set claim-triggers new-trigger value))))
 
 (define-private (burn-top-iter (c (buff 1)) (data {i: uint, p: (response bool uint)}))
 	(begin

@@ -7,6 +7,10 @@ const admins = [
   "0x0B65Df3609EBa3E8Ad70fC31C7916746173dA2ED"
 ];
 
+const claimTriggers = [
+  "0x511D07C7504314eb7BD41AE57b2d172Af93eD874"
+];
+
 const ryderNftAddress = "0x3dD95873911B083b17FB8f5dD11EeE016F5BdD3E";
 // const ryderNftAddressTestnet = "0x7a3176824DEa963Df77D18cf26165528080D78CB";
 
@@ -20,8 +24,10 @@ async function main() {
   const ryderNft = await ethers.getContractAt("RyderNFT", ryderNftAddress);
   const ryderMintV2 = await ryderMintV2Contract.deploy(ryderNft.address, admins);
   await ryderMintV2.setPaymentRecipient(paymentRecipient, { from: deployer.address });
+  for (const trigger of claimTriggers)
+    await ryderMintV2.setClaimTrigger(trigger, true, { from: deployer.address });
   await ryderNft.setMinter(ryderMintV2.address, true, { from: deployer.address });
-  console.log(`Deployed contract\nRyderMintV2: ${ryderMintV2.address}\nAdmins: ${admins.join(', ')}`);
+  console.log(`Deployed contract\nRyderMintV2: ${ryderMintV2.address}\nAdmins: ${admins.join(', ')}\nClaim triggers: ${claimTriggers.join(', ')}`);
   console.log(`Deploy TXID: ${ryderMintV2.deployTransaction.hash}`);
 }
 

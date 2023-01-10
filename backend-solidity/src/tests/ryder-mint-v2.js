@@ -131,6 +131,15 @@ describe("RyderMintV2", function () {
 		expect(await ryderNft.balanceOf(bob.address)).to.equal(1);
 	});
 
+	it("claim trigger can trigger claim for someone else", async function () {
+		await prepareMint();
+		const resultBob = await doMintFor(bob);
+		await mineBlocksUntil(resultBob);
+		await ryderMintV2.connect(owner).setClaimTrigger(sara.address, true);
+		await ryderMintV2.connect(sara).claimFor(resultBob, bob.address);
+		expect(await ryderNft.balanceOf(bob.address)).to.equal(1);
+	});
+
 	it("non-admin cannot trigger claim for someone else", async function () {
 		await prepareMint();
 		const resultBob = await doMintFor(bob);
@@ -175,6 +184,7 @@ describe("RyderMintV2", function () {
 		await expect(ryderMintV2.connect(bob).setPriceInWei(100)).to.be.revertedWith(ERR_UNAUTHORIZED);
 		await expect(ryderMintV2.connect(bob).setPaymentRecipient(sara.address)).to.be.revertedWith(ERR_UNAUTHORIZED);
 		await expect(ryderMintV2.connect(bob).setAdmin(sara.address, true)).to.be.revertedWith(ERR_UNAUTHORIZED);
+		await expect(ryderMintV2.connect(bob).setClaimTrigger(sara.address, true)).to.be.revertedWith(ERR_UNAUTHORIZED);
 	});
 
 	it("mint and buy all test", async function () {
