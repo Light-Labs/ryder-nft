@@ -11,19 +11,85 @@ export function buy(amount: number, userAddress: string) {
 }
 
 export function claim(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim", [types.uint(height)], userAddress);
+  return Tx.contractCall(
+    "ryder-mint-v2",
+    "claim",
+    [types.uint(height)],
+    userAddress
+  );
 }
 
 export function claimTwo(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim-many", [types.list([types.uint(height), types.uint(height)])], userAddress);
+  return Tx.contractCall(
+    "ryder-mint-v2",
+    "claim-many",
+    [types.list([types.uint(height), types.uint(height)])],
+    userAddress
+  );
 }
 
 export function claimFive(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim-many", [types.list([types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height)])], userAddress);
+  return Tx.contractCall(
+    "ryder-mint-v2",
+    "claim-many",
+    [
+      types.list([
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+      ]),
+    ],
+    userAddress
+  );
 }
 
 export function claimTen(height: number, userAddress: string) {
-  return Tx.contractCall("ryder-mint-v2", "claim-many", [types.list([types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height), types.uint(height)])], userAddress);
+  return Tx.contractCall(
+    "ryder-mint-v2",
+    "claim-many",
+    [
+      types.list([
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+        types.uint(height),
+      ]),
+    ],
+    userAddress
+  );
+}
+
+export function claimFor(height: number, buyer: string, userAddress: string) {
+  return Tx.contractCall(
+    "ryder-mint-v2",
+    "claim-for",
+    [types.uint(height), types.principal(buyer)],
+    userAddress
+  );
+}
+
+export function claimManyFor(
+  heights: number[],
+  buyers: string[],
+  userAddress: string
+) {
+  return Tx.contractCall(
+    "ryder-mint-v2",
+    "claim-many-for",
+    [
+      types.list(heights.map((height) => types.uint(height))),
+      types.list(buyers.map((buyer) => types.principal(buyer))),
+    ],
+    userAddress
+  );
 }
 
 export function setMintEnabled(enabled: boolean, userAddress: string) {

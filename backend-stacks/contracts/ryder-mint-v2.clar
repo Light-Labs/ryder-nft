@@ -53,6 +53,7 @@
 		(var-set amount-available-for-purchase (- available amount))
 		(map-set nft-claims {height: target-height, buyer: tx-sender} (+ (get-nft-claims target-height tx-sender) amount))
 		(try! (stx-transfer? (* (var-get price-in-ustx) amount) tx-sender (var-get payment-recipient)))
+		(print {buy: amount, height: target-height, buyer: tx-sender})
 		(ok target-height)))
 
 (define-public (claim (height uint))
@@ -74,6 +75,7 @@
 		(var-set upper-mint-id (- upper-bound u1))
 		(var-set last-transferred-id transfer-id)
 		(map-set nft-claims {height: height, buyer: buyer} (- claims u1))
+		(print {claim: transfer-id, height: height, buyer: buyer})
 		(ok transfer-id)))
 
 (define-public (claim-many (heights (list 20 uint)))
@@ -84,6 +86,18 @@
 
 (define-read-only (get-upper-bound)
 	(var-get upper-mint-id))
+
+(define-read-only (get-price-in-ustx)
+  (var-get price-in-ustx))
+
+(define-read-only (get-mint-enabled)
+	(var-get mint-enabled))
+
+(define-read-only (get-payment-recipient)
+  (var-get payment-recipient))
+
+(define-read-only (is-admin  (account principal))
+  (default-to false (map-get? admins account)))
 
 ;; admin function
 (define-read-only (check-is-admin)
@@ -125,8 +139,9 @@
 
 ;; once burn-top is used, mint-to-contract can never be used again
 (define-public (burn-contract-tokens-top (iterations (buff 200)))
-	(let ((result (fold burn-top-iter iterations {i: (var-get upper-mint-id), p: (ok true)})))
-		(try! (check-is-admin))
+	(let ((valid-admin (try! (check-is-admin)))
+		  (valid-length (asserts! (>= (var-get upper-mint-id) (len iterations)) err-bad-mint-status))
+		  (result (fold burn-top-iter iterations {i: (var-get upper-mint-id), p: (ok true)})))
 		(unwrap! (get p result) err-failed)
 		(ok (var-set upper-mint-id (get i result)))))
 
